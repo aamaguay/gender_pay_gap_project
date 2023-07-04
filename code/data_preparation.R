@@ -14,7 +14,7 @@ cat("the dataset has ", nrow(ds), 'rows, and ', round(sum(is.na(ds$realrinc))/nr
 
 
 ###create dummies
-###test 
+###test 1
 #occupation
 #ds_occ1 <- ds %>% distinct(occ10) #there are 537 different occupations
 ds_occ2 <- ds %>% distinct(occrecode)#there are 12 different occupations: Office, Professional, NA, Business/Finance, Construction, Sales, Transportation, Service, Production, Farming, Installation, Armed Forces
