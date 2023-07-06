@@ -87,6 +87,12 @@ ds$female <- ifelse(ds$gender == "Female", 1, 0)
 
 
 
+#dataset with realincr = 0 for housekeepers
+ds_na <- ds
+ds_na$realrinc <- ifelse(ds$housekeeper == 1 & is.na(ds$realrinc), 0, ds$realrinc)
+summary(ds$realrinc)
+summary(ds_na$realrinc)
+ds_na <- ds_na[!is.na(ds$realrinc),]
 
 # filtered dataset, not using obs, with missing value for outcome
 ds_filter <- ds[!is.na(ds$realrinc),]
@@ -103,3 +109,8 @@ cor(cor.filter, method = "spearman")
 # pair plots
 pairs(cor.filter)
 ggpairs(cor.filter)
+
+#save datasets
+save(ds, file = "data/ds.Rda")
+save(ds_na, file = "data/ds_na.Rda")
+save(ds_filter, file = "data/ds_filter.Rda")
