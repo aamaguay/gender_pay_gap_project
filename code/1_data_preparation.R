@@ -5,6 +5,7 @@ setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsfors
 # packages
 library(dplyr)
 library(GGally)
+library(mice)
 
 # import ds
 ds <- read.csv('data/gss_wages_train.csv')
@@ -85,7 +86,19 @@ ds$unmarried <- ifelse(is.na(ds$maritalcat) | ds$unmarried == 0,0,1)
 #gender
 ds$female <- ifelse(ds$gender == "Female", 1, 0)
 
+#age
+ds$age2 <- (ds$age)^2
+summary(ds$age2)
+summary(ds$age)
 
+#log income
+ds$linc <- log(ds$realrinc)
+summary(ds$linc)
+summary(ds$realrinc)
+
+#NA analysis: 33066 obs for which we have all variables, 17715 only miss income, 2977 miss occupation, income &prestige
+#             382 obs miss prestige, 159 miss income & prestige
+md.pattern(ds)
 
 #dataset with realincr = 0 for housekeepers
 ds_na <- ds
@@ -100,6 +113,18 @@ summary(ds_filter)
 
 cat("the dataset has ", nrow(ds_filter), 'rows \n')
 summary(ds_filter)
+
+#NA anyalysis for filtered dataset: 33066 obs for which we have all variables, 382 obs miss prestige, 82 miss occupation and prestige, 71 miss children
+md.pattern(ds_filter)
+
+#imputation using mice
+imputated_data <- mice(ds_filter, m = 5, method = "pmm", maxit = 50) #predictive mean matching
+imputated_data$imp #inspect imputated values
+Data <- complete(imputated_data,1) #create dataset including imputated values
+
+#inspect imputation
+xyplot(imputated_data,realrinc ~ age + occ10 + prestg10 +childs,pch=18,cex=1)
+densityplot(imputated_data)
 
 # fast estimation of correlation matrix
 cor.filter <- select_if(ds_filter, is.numeric)
