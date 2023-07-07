@@ -34,3 +34,6 @@ test_na <- remaining_na[-valid_test_index_na, ]
 #OLS regressions
 m1 <- lm(realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat, data = train_na )
 summary(m1)
+
+m2 <- with(Data,lm(realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat))
+summary(pool(m2))
