@@ -1,0 +1,6 @@
+- I realized that the missing values for prestige occur often for occupation 9997. Occupation 9997 is an occupation that could not be coded to a specific occupation --> I think we should remove these observations
+and use filter2
+
+- So far I used filter to try out the imputation methods. My experience is that I receive the best results if I use a dataset without the generated dummy variables.
+
+- I inspected the imputated values with densityplot but couldn't figure out how to use the other methods such as stripplots or RMSE
