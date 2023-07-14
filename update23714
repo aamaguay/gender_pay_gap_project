@@ -4,3 +4,5 @@ and use filter2
 - So far I used filter to try out the imputation methods. My experience is that I receive the best results if I use a dataset without the generated dummy variables.
 
 - I inspected the imputated values with densityplot but couldn't figure out how to use the other methods such as stripplots or RMSE
+
+- A good (but a bit outdated) documentation for MICE can be found here: https://www.jstatsoft.org/article/view/v045i03
