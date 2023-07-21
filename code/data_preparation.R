@@ -1,6 +1,6 @@
 # set wd
 setwd("/home/user/Downloads/info_tud/statistical_learning_UDE/gender_pay_gap_project")
-setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/Project")
+# setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/Project")
 
 # packages
 library(dplyr)
@@ -84,7 +84,6 @@ ds$unmarried <- ifelse(is.na(ds$maritalcat) | ds$unmarried == 0,0,1)
 
 #gender
 ds$female <- ifelse(ds$gender == "Female", 1, 0)
-
 
 
 #dataset with realincr = 0 for housekeepers
