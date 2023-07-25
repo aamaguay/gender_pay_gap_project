@@ -2,7 +2,7 @@
 setwd("/home/user/Downloads/info_tud/statistical_learning_UDE/gender_pay_gap_project")
 # import functions file
 source('code/utils_functions.R')
-# setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/Project")
+ setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/gender_pay_gap_project_1")
 
 # packages
 library(dplyr)
@@ -15,10 +15,18 @@ library(caret)
 library(ggplot2)
 
 # import ds
-ds <- read.csv('data/gss_wages_train.csv')
+ds <- read.csv('C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/project/data/gss_wages_train.csv')
+
 summary(ds)
 ds1 <- ds
 cat("the dataset has ", nrow(ds), 'rows, and ', round(sum(is.na(ds$realrinc))/nrow(ds)*100,2), "% of missing values for the outcome \n")
+
+#create factor variables
+ds$educcat <- as.factor(ds$educcat)
+ds$maritalcat <- as.factor(ds$maritalcat)
+ds$wrkstat <- as.factor(ds$wrkstat)
+ds$gender <- as.factor(ds$gender)
+ds$occrecode <- as.factor(ds$occrecode)
 
 # filtered dataset, not using obs, with missing value for outcome
 ds_filter  <- ds[!is.na(ds$realrinc),] #filtered dataset
@@ -50,12 +58,17 @@ ds_filter2 <- ds_filter %>% filter(occ10 != 9997)
 cat("the dataset with filter#2 has ", nrow(ds_filter2), 'rows \n')
 summary(ds_filter2)
 
+
 ds_with_filter_col <- ds_filter2 %>%
   select(c("realrinc", "age", "occrecode", "prestg10", "childs","wrkstat", "gender", "educcat", "maritalcat"))
+
+
 
 imp.data.filter.col <- mice(ds_with_filter_col, m = 6,
                             method = c("", "pmm", "", "pmm", "pmm", "", "","polyreg","polyreg"),
                             maxit = 5, seed = 1)
+class(ds_with_filter_col$educcat)
+str(ds_with_filter_col)
 # check performance
 # look kinda similar
 densityplot(imp.data.filter.col)
@@ -74,19 +87,21 @@ for (i.ds in 1:6) {
 }
 colnames(full.datasets) <- colnames(ds_with_filter_col)
 
+rowSums(is.na(t(ds_with_filter_col)))
+
 # due to the results of each imputation dataset are not similar (randomness), we need to join this datatset
-# i apply a mean estimation for the numeric values, and majority vote for factor values
+# I apply a mean estimation for the numeric values, and majority vote for factor values
 ds.after.imp.method <- matrix(NA, ncol = ncol(ds_with_filter_col) , nrow = nrow(ds_with_filter_col))
 colnames(ds.after.imp.method) <- colnames(ds_with_filter_col)
 for (i.name in colnames(ds_with_filter_col)) {
   # numeric values
   if ( i.name %in% c("age", "prestg10", "childs") ){
-    # i.name <- "childs"
+   # i.name <- "age"
     ds.mean.feature <- matrix(NA, ncol = 6, nrow = nrow(ds_with_filter_col))
     for(i.idx in 1:6) ds.mean.feature[,i.idx] <- full.datasets[,,i.idx][,i.name]
-    ds.mean.feature <- ds.mean.feature %>% as.data.frame()
-    ds.mean.feature <- (as.data.frame(lapply(ds.mean.feature, function(x) as.numeric(levels(x))[x])))
-    ds.mean.feature <- round(rowMeans(ds.mean.feature))
+    ds.mean.feature <- ds.mean.feature %>% as.data.frame() 
+    ds.mean.feature <- (as.data.frame(lapply(ds.mean.feature, function(x) as.numeric(x)))) #here suddenly NAs are included
+    ds.mean.feature <- round(rowMeans(ds.mean.feature, na.rm = TRUE))
     ds.after.imp.method[,i.name] <- ds.mean.feature
   }
   # factor values
@@ -94,23 +109,26 @@ for (i.name in colnames(ds_with_filter_col)) {
     ds.majority.feature <- matrix(NA, ncol = 6, nrow = nrow(ds_with_filter_col))
     for(i.idx in 1:6) ds.majority.feature[,i.idx] <- full.datasets[,,i.idx][,i.name]
     ds.majority.feature <- ds.majority.feature %>% as.data.frame()
-    ds.majority.feature.res <- mclapply(as.data.frame(t(ds.majority.feature)), majority_vote, mc.cores = 8)
+    ds.majority.feature.res <- mclapply(as.data.frame(t(ds.majority.feature)), majority_vote, mc.cores = 1) #mc.cores > 1 is not allowed in Windows
     ds.majority.feature.res <- as.vector(unlist(ds.majority.feature.res))
     ds.after.imp.method[,i.name] <- ds.majority.feature.res
   }
 }
+
+
+sum(is.na(ds.after.imp.method))
 # fix data type
 ds.after.imp.method <- ds.after.imp.method %>% as.data.frame()
+ds.after.imp.method <- ds.after.imp.method
 ds.after.imp.method$realrinc <- ds_with_filter_col$realrinc
 ds.after.imp.method$occrecode <- ds_with_filter_col$occrecode
 ds.after.imp.method$wrkstat <- ds_with_filter_col$wrkstat
 ds.after.imp.method$gender <- ds_with_filter_col$gender
-
-ds.after.imp.method <- ds.after.imp.method %>% 
-  mutate(age = as.numeric(levels(age))[age]) %>%
-  mutate(childs = as.numeric(levels(childs))[childs]) %>%
-  mutate(prestg10 = as.numeric(levels(prestg10))[prestg10])
+ds.after.imp.method$age <- as.numeric(ds.after.imp.method$age)
+ds.after.imp.method$childs <- as.numeric(ds.after.imp.method$childs)
+ds.after.imp.method$prestg10 <- as.numeric(ds.after.imp.method$prestg10)
   
+
 # comparison between datasets - before and after imputation
 summary(ds_filter2)
 summary(ds.after.imp.method)
@@ -131,6 +149,7 @@ fixed.colnames <- sub("_", "", fixed.colnames)
 fixed.colnames[fixed.colnames == "other"] <- "other_wrkstat"
 colnames(ds.with.dummies) <- fixed.colnames
 
+##move on: why do I have NAs here?
 # combinate dummies with numeric columns
 ds.w.imputed.dummies <- (cbind(ds.after.imp.method[,c("realrinc","age", "prestg10","childs")], 
                               ds.with.dummies)) %>% as_tibble()
@@ -159,7 +178,7 @@ ds.w.imputed.dummies$childs_qtil <- cut(ds.w.imputed.dummies$childs, breaks = qu
 quantile_var3 <- quantile(ds.w.imputed.dummies$prestg10 , probs = seq(0, 1, by=1/4))
 ds.w.imputed.dummies$prestg10_qtil <- cut(ds.w.imputed.dummies$prestg10, breaks = quantile_var3,
                                         include.lowest = TRUE)
-
+sum(is.na(full.datasets[,,1]))
 # anova test for interactions
 model.ts <- lm(realrinc ~ prestg10 + age + (prestg10 * age)+ (prestg10 * childs)+(age * childs), 
                data = ds.w.imputed.dummies)

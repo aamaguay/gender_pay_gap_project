@@ -146,7 +146,7 @@ meth <- ini$meth
 meth["realrinc"] <- ""
 imputated_data3 <- mice(ds, m = 5, meth = meth, pred = pred, pri = FALSE)
 
-###should we remove any predictors?
+###should we remove any predictors? --> yes, all that we created ourselves
 ###age2 should be created after imputation
 
 
@@ -162,9 +162,9 @@ densityplot(imputated_data)
 densityplot(imputated_data2)
 densityplot(imputated_data3)
 densityplot(imputated_data4)
-densityplot(imputated_data5) #sehr schlecht: negative Werte für childs
-densityplot(imputated_data6) #fit gefällt mir für die meisten imputations
-densityplot(imputated_data7) #sehr schlecht: negative Werte für childs
+densityplot(imputated_data5) #very bad: negative values for childs
+densityplot(imputated_data6) #fit fine for most imputations
+densityplot(imputated_data7) #very bad: negative values for childs
 densityplot(imputated_data13)
 
 #stripplots don't work
