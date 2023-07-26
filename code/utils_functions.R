@@ -8,3 +8,8 @@ majority_vote <- function(df) {
   majority <- freq_table$label[1]
   return(majority)
 }
+
+estimate.vector <- function(i, ls_ds_interaction, all_dummys){
+  result <- (all_dummys[,ls_ds_interaction[[i]][1]]*all_dummys[,ls_ds_interaction[[i]][2]])
+  return(result)
+}
