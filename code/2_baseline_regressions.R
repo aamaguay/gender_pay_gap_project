@@ -1,6 +1,6 @@
 # set wd
 setwd("/home/user/Downloads/info_tud/statistical_learning_UDE/gender_pay_gap_project")
-setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/Project")
+setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/gender_pay_gap_project_1")
 
 # packages
 library(dplyr)
@@ -8,9 +8,7 @@ library(GGally)
 library(caret)
 
 #load data
-load("data/ds.Rda")
-load("data/ds_na.Rda")
-load("data/ds_filter.Rda")
+ds <- read.csv("data/full_data_w_dummies_interaction.csv")
 
 #split in train, validation and test data
 set.seed(123)

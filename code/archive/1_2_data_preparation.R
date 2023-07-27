@@ -149,7 +149,6 @@ fixed.colnames <- sub("_", "", fixed.colnames)
 fixed.colnames[fixed.colnames == "other"] <- "other_wrkstat"
 colnames(ds.with.dummies) <- fixed.colnames
 
-##move on: why do I have NAs here?
 # combinate dummies with numeric columns
 ds.w.imputed.dummies <- (cbind(ds.after.imp.method[,c("realrinc","age", "prestg10","childs")], 
                               ds.with.dummies)) %>% as_tibble()

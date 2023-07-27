@@ -2,7 +2,7 @@
 setwd("/home/user/Downloads/info_tud/statistical_learning_UDE/gender_pay_gap_project")
 # import functions file
 source('code/utils_functions.R')
-# setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/Project")
+ setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/gender_pay_gap_project_1")
 
 # packages
 library(dplyr)
@@ -64,14 +64,17 @@ ds_with_filter_col <- ds_filter2 %>%
 imp.data.filter.col <- mice(ds_with_filter_col, m = 6,
                             method = c("", "pmm", "", "pmm", "pmm", "", "","polyreg","polyreg"),
                             maxit = 5, seed = 1)
+
+### plots to check performance - commented off for computational reasons
+
 # check performance
 # look kinda similar
-densityplot(imp.data.filter.col)
+#densityplot(imp.data.filter.col)
 # points are located in the same range values
-stripplot(imp.data.filter.col, pch = 20, cex = 1.2)
+#stripplot(imp.data.filter.col, pch = 20, cex = 1.2)
 # i dont know why i cant see the red dots
-xyplot(imp.data.filter.col, realrinc ~ age+childs+prestg10, pch = c(1, 1), 
-       cex = c(1, 1)) 
+#xyplot(imp.data.filter.col, realrinc ~ age+childs+prestg10, pch = c(1, 1), 
+#       cex = c(1, 1)) 
 
 # extract the datasets of each iterations
 full.datasets <- array(NA, dim = c(nrow(ds_with_filter_col), ncol(ds_with_filter_col), 6))
@@ -89,10 +92,11 @@ colnames(ds.after.imp.method) <- colnames(ds_with_filter_col)
 for (i.name in colnames(ds_with_filter_col)) {
   # numeric values
   if ( i.name %in% c("age", "prestg10", "childs") ){
+    # i.name <- "age"
     ds.mean.feature <- matrix(NA, ncol = 6, nrow = nrow(ds_with_filter_col))
     for(i.idx in 1:6) ds.mean.feature[,i.idx] <- full.datasets[,,i.idx][,i.name]
-    ds.mean.feature <- ds.mean.feature %>% as.data.frame()
-    ds.mean.feature <- (as.data.frame(lapply(ds.mean.feature, function(x) as.numeric(levels(x))[x])))
+    ds.mean.feature <- ds.mean.feature %>% as.data.frame() 
+    ds.mean.feature <- (as.data.frame(lapply(ds.mean.feature, function(x) as.numeric(x)))) #here suddenly NAs are included
     ds.mean.feature <- round(rowMeans(ds.mean.feature, na.rm = TRUE))
     ds.after.imp.method[,i.name] <- ds.mean.feature
   }
@@ -101,23 +105,26 @@ for (i.name in colnames(ds_with_filter_col)) {
     ds.majority.feature <- matrix(NA, ncol = 6, nrow = nrow(ds_with_filter_col))
     for(i.idx in 1:6) ds.majority.feature[,i.idx] <- full.datasets[,,i.idx][,i.name]
     ds.majority.feature <- ds.majority.feature %>% as.data.frame()
-    ds.majority.feature.res <- mclapply(as.data.frame(t(ds.majority.feature)), majority_vote, mc.cores = 8)
+    ds.majority.feature.res <- mclapply(as.data.frame(t(ds.majority.feature)), majority_vote, mc.cores = 1) #mc.cores > 1 is not allowed in Windows
     ds.majority.feature.res <- as.vector(unlist(ds.majority.feature.res))
     ds.after.imp.method[,i.name] <- ds.majority.feature.res
   }
 }
+
+
+sum(is.na(ds.after.imp.method))
 # fix data type
 ds.after.imp.method <- ds.after.imp.method %>% as.data.frame()
+ds.after.imp.method <- ds.after.imp.method
 ds.after.imp.method$realrinc <- ds_with_filter_col$realrinc
 ds.after.imp.method$occrecode <- ds_with_filter_col$occrecode
 ds.after.imp.method$wrkstat <- ds_with_filter_col$wrkstat
 ds.after.imp.method$gender <- ds_with_filter_col$gender
+ds.after.imp.method$age <- as.numeric(ds.after.imp.method$age)
+ds.after.imp.method$childs <- as.numeric(ds.after.imp.method$childs)
+ds.after.imp.method$prestg10 <- as.numeric(ds.after.imp.method$prestg10)
 
-ds.after.imp.method <- ds.after.imp.method %>% 
-  mutate(age = as.numeric(levels(age))[age]) %>%
-  mutate(childs = as.numeric(levels(childs))[childs]) %>%
-  mutate(prestg10 = as.numeric(levels(prestg10))[prestg10])
-  
+
 # comparison between datasets - before and after imputation
 summary(ds_filter2)
 summary(ds.after.imp.method)
@@ -218,7 +225,7 @@ prestg.intervals.labels <- prestg.intervals.labels[prestg.intervals.labels != "p
 # create the combination of features
 col_comb_features <- c(paste("occ_", occrecode.labels, sep = ""),
                        paste("wrk_", wrkstat.labels, sep = ""),
-                       paste("edu_", educcat.labels, sep = ""),
+                       #paste("edu_", educcat.labels, sep = ""),
                        paste("marital_", maritalcat.labels, sep = ""),
                        paste("age_", age.intervals.labels, sep = ""),
                        paste("childs_", childs.intervals.labels, sep = ""),
