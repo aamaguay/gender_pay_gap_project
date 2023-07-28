@@ -6,6 +6,9 @@ setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsfors
 library(dplyr)
 library(GGally)
 library(caret)
+library(ISLR)
+library(tidyverse)
+library(caret)
 
 #load data
 ds <- read.csv("data/full_data_w_dummies_interaction.csv")
@@ -13,37 +16,58 @@ ds <- read.csv("data/full_data_w_dummies_interaction.csv")
 #split in train, validation and test data
 set.seed(123)
 
-trainindex_filter <- createDataPartition(y = ds_filter$realrinc, p = 0.7, list = FALSE) # Split the data into training (70%) and remaining (30%)
-train_filter <- ds_filter[trainindex_filter, ]
-remaining_filter <- ds_filter[-trainindex_filter, ]
+trainindex <- createDataPartition(y = ds$realrinc, p = 0.7, list = FALSE) # Split the data into training (70%) and remaining (30%)
+train <- ds[trainindex, ]
+remaining <- ds[-trainindex, ]
 
-valid_test_index_filter <- createDataPartition(y = remaining_filter$realrinc, p = 0.5, list = FALSE) # Split the remaining data into validation (50%) and test (50%)
-validation_filter <- remaining_filter[valid_test_index_filter, ]
-test_filter <- remaining_filter[-valid_test_index_filter, ]
+valid_test_index <- createDataPartition(y = remaining$realrinc, p = 0.5, list = FALSE) # Split the remaining data into validation (50%) and test (50%)
+validation <- remaining[valid_test_index, ]
+test <- remaining[-valid_test_index, ]
 
+
+###let's do this again with cross validation and using train
 
 #OLS regressions
-mod_full <- lm(realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat, data = ds)
+mod_full <- lm(realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr, data = train)
 summary(mod_full)
+pred <-predict(mod_full, newdata = validation)
+mse <- ModelMetrics::mse(validation$realrinc, pred)
+cat("Mean Squared Error (MSE):", mse, "\n") #403030161
+rmse <- caret::RMSE(pred = predict(mod_full, validation), obs = validation$realrinc)
+cat("Root Mean Squared Error (RMSE):", rmse, "\n") #20075.61 
 
 mod_wo_interactions <- lm(realrinc ~ age + prestg10 + childs + armed_forces + business_finance + construction_extraction + farming_fishing_and_forestry + 
                             installation_maintenance_and_repair + office_and_administrative_support + production + professional + sales + service + 
                              + full_time + housekeeper + part_time + retired + school + temporarily_not_working + unemployed_laid_off + bachelor + 
-                            graduate + highschool + juniorcollege +  + divorced + married + nevermarried + separated  + female, data = ds)
+                            graduate + highschool + juniorcollege +  + divorced + married + nevermarried + separated  + female, data = train)
 summary(mod_wo_interactions)
+pred <-predict(mod_wo_interactions, newdata = validation)
+mse <- ModelMetrics::mse(validation$realrinc, pred)
+cat("Mean Squared Error (MSE):", mse, "\n") #605727520 
+rmse <- caret::RMSE(pred = predict(mod_wo_interactions, validation), obs = validation$realrinc)
+cat("Root Mean Squared Error (RMSE):", rmse, "\n") #24611.53
 
-mod_loginc <- lm(log_realrinc ~ age + prestg10 + childs + armed_forces + business_finance + construction_extraction + farming_fishing_and_forestry + 
-                   installation_maintenance_and_repair + office_and_administrative_support + production + professional + sales + service + 
-                   + full_time + housekeeper + part_time + retired + school + temporarily_not_working + unemployed_laid_off + bachelor + 
-                   graduate + highschool + juniorcollege + divorced + married + nevermarried + separated  + female, data = ds)
+mod_loginc <- lm(log_realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr, data = train)
 summary(mod_loginc)
+pred <-predict(mod_loginc, newdata = validation)
+mse <- ModelMetrics::mse(validation$realrinc, pred)
+cat("Mean Squared Error (MSE):", mse, "\n") #1284835881  
+rmse <- caret::RMSE(pred = predict(mod_loginc, validation), obs = validation$realrinc)
+cat("Root Mean Squared Error (RMSE):", rmse, "\n") #35844.61 
 
-mod_age2 <- lm(realrinc ~ age + age_sqr + prestg10 + childs + armed_forces + business_finance + construction_extraction + farming_fishing_and_forestry + 
-                 installation_maintenance_and_repair + office_and_administrative_support + production + professional + sales + service + 
-                 + full_time + housekeeper + part_time + retired + school + temporarily_not_working + unemployed_laid_off + bachelor + 
-                 graduate + highschool + juniorcollege +  divorced + married + nevermarried + separated  + female, data = ds)
+
+mod_age2 <- lm(realrinc  ~ . - occrecode -wrkstat - gender -educcat -maritalcat, data = train)
 summary(mod_age2)
+pred <-predict(mod_age2, newdata = validation)
+mse <- ModelMetrics::mse(validation$realrinc, pred)
+cat("Mean Squared Error (MSE):", mse, "\n") #403041571   
+rmse <- caret::RMSE(pred = predict(mod_age2, validation), obs = validation$realrinc)
+cat("Root Mean Squared Error (RMSE):", rmse, "\n") #20075.9 
 
 
-m2 <- with(ds,lm(realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat)) ### this does not work for me
+
+
+
+
+m2 <- with(train,lm(realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat)) ### this does not work for me
 summary(pool(m2))
