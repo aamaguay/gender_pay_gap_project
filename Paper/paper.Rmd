@@ -1,0 +1,105 @@
+---
+title: "The Gender Pay Gap in the General Social Survey"
+author: "Alex Amaguaya, Lea Bergmann"
+cols_authors: 3
+subtitle: "Statistical Learning"
+deadline: "tomorrow"
+type: "Term Paper"
+date: "today"
+supervisors: "Prof. Dr. Thomas Deckers, Karolina Gliszczynska"
+output:
+  pdf_document:
+    keep_tex: yes
+    template: template.tex
+    fig_caption: yes
+    citation_package: biblatex
+    number_sections: true
+toc: true
+lot: true
+lof: true
+graphics: true
+biblio-title: References
+fontsize: 11pt
+geometry: lmargin=2.5cm,rmargin=2.5cm,tmargin=2.5cm,bmargin=2.5cm
+biblio-files: references.bib
+classoption: a4paper
+---
+
+<!-- % Template Version 1.1 -->
+
+<!-- below function does some formatting for images; leave this untouched unless you know better :-) -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(magick)
+library(tidyverse)
+library(stargazer)
+crop <- function(im, left = 0, top = 0, right = 0, bottom = 0) {
+  d <- dim(im[[1]]); w <- d[2]; h <- d[3]
+  image_crop(im, glue::glue("{w-left-right}x{h-top-bottom}+{left}+{top}"))
+}
+```
+
+# Introduction
+
+In this paper we predict individuals' wages using data from the General Social Survey (GSS, 1974-2018). The variable of interest is `realrinc` which varies between 227\$ and 480,145\$. Hence, we can use regression techniques to predict individuals' wages. Additionally, we can consider whether `realrinc` varies by gender and if so, how much.
+
+The data from the GSS allow us to consider various control variables such as gender, age, education, occupation, number of children and marital status.
+
+To predict `realrinc` we use several regression techniques:
+
+-   Linear Regression
+
+-   Logistic Regression
+
+-   Support Vector Machines
+
+-   Gradient Boosting
+
+-   Random Forest
+
+In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%), a validation (15%) and a test data set (15%). We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RSME) using the validation data.
+
+[Write something about why to use RSME]
+
+[Write something about cross validation?]
+
+# Data Preparation
+
+Before conducting the regression analysis we prepared the data. The provided dataset has 54,842 observations and for 38.55% of the observations the outcome variable `realrinc` is missing. As we cannot predict the wage for those observations we removed them. This left us with a dataset containing 33,702 observations. Additionally, we do not know the occupation for some observations (`occ10 = 9997` ) and removed those. This diminishes the dataset to 33,244 observations.
+
+In this dataset still there were missing some values for some observations, e.g., number of children or occupation. To impute these values we used the `mice` function. We imputed age, occupational prestige and number of children with predictive mean matching. For the factor variables education and marital status we used polytomous logisitic regression. We receive six imputation datasets and use mean estimation for age, occupational prestige and number of children.
+
+With this dataset we create dummy variables for the factor variables. Additionally, we create interaction variables.
+
+[Something about ANOVA test for interaction variables].
+
+In a final step we calculate the correlation matrix using Spearman's rank correlation coefficient. We remove all variables that have a higher than 90% correlation with each other. Our final dataset then contains 33,233 of 347 variables.
+
+# Model Training and Tuning
+
+We used five different regression techniques to predict the individuals' wages using the final dataset. We fit every model on our training data using the `train` function from the `caret` package. To choose the best parameter combination we use cross-validation within all train functions.
+
+## Linear and Logistic Regression
+
+Our baseline linear model uses an OLS regression including all interaction variables. This results in an RMSE of 20,075.61.
+
+``` R
+mod_full <- train(realrinc ~  . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
+                  data = train, 
+                  method = "lm",  
+                  trControl = trainControl(method = "cv"))
+```
+
+Given some extreme outliers in the income distribution of our data (which is typical for wage data) we follow the economic literature ([https://onlinelibrary.wiley.com/toc/14680084/2008/70/s1](#0)) [correct citation missing] and fit a logistic model to our data, using the log of `realrinc` as our dependent variable. This results in a higher RMSE than the linear model (35,844.61).
+
+``` R
+mod_loginc <- train(log_realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
+                    data = train, 
+                    method = "lm",  
+                    trControl = trainControl(method = "cv")) 
+```
+
+In both models the coefficient of female remains statistically insignificant at conventional levels. This suggests that gender is not a driving factor for wages within our data.
+
+## Support Vector Machines

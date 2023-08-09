@@ -28,7 +28,7 @@ test <- remaining[-valid_test_index, ]
 lin_kern <- train(realrinc ~ age + prestg10 + childs + armed_forces + business_finance + construction_extraction + farming_fishing_and_forestry + 
                     installation_maintenance_and_repair + office_and_administrative_support + production + professional + sales + service + 
                     + full_time + housekeeper + part_time + retired + school + temporarily_not_working + unemployed_laid_off + bachelor + 
-                    graduate + highschool + juniorcollege +  + divorced + married + nevermarried + separated  + female, data = train, 
+                    graduate + highschool + juniorcollege +  divorced + married + nevermarried + separated  + female, data = train, 
       method = 'svmLinear', preProcess = c("center","scale"),
       trControl = trainControl(method = "cv"), tuneGrid = data.frame(C = c(0.01,0.1,1,10,100)) )
 rmse <- caret::RMSE(pred = predict(lin_kern, validation), obs = validation$realrinc)

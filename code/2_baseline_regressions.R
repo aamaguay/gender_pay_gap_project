@@ -26,7 +26,7 @@ test <- remaining[-valid_test_index, ]
 
 
 #OLS regressions
-mod_full <- train(realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
+mod_full <- train(realrinc ~ female + . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
                   data = train, 
                   method = "lm",  
                   trControl = trainControl(method = "cv"))
@@ -51,7 +51,7 @@ cat("Mean Squared Error (MSE):", mse, "\n") #605727520
 rmse <- caret::RMSE(pred = predict(mod_wo_interactions, validation), obs = validation$realrinc)
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #24611.53
 
-mod_loginc <- train(log_realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
+mod_loginc <- train(log_realrinc ~ female + . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
                     data = train, 
                     method = "lm",  
                     trControl = trainControl(method = "cv"))

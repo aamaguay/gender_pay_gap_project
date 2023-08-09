@@ -1,0 +1,425 @@
+\documentclass[$if(fontsize)$$fontsize$,$endif$$if(lang)$$lang$,$endif$$if(papersize)$$papersize$,$endif$$for(classoption)$$classoption$$sep$,$endfor$]{$documentclass$}
+$if(fontfamily)$
+\usepackage{$fontfamily$}
+$else$
+\usepackage{lmodern}
+$endif$
+
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+$if(euro)$
+  \usepackage{eurosym}
+$endif$
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{???}
+$if(mainfont)$
+    \setmainfont{$mainfont$}
+$endif$
+$if(sansfont)$
+    \setsansfont{$sansfont$}
+$endif$
+$if(monofont)$
+    \setmonofont[Mapping=tex-ansi]{$monofont$}
+$endif$
+$if(mathfont)$
+    \setmathfont(Digits,Latin,Greek){$mathfont$}
+$endif$
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+$if(geometry)$
+\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+$endif$
+$if(lang)$
+\ifxetex
+  \usepackage{polyglossia}
+  \setmainlanguage{$mainlang$}
+\else
+  \usepackage[shorthands=off,$lang$]{babel}
+\fi
+$endif$
+
+% Figure Placement:
+\usepackage{float}
+\let\origfigure\figure
+\let\endorigfigure\endfigure
+\renewenvironment{figure}[1][2] {
+    \expandafter\origfigure\expandafter[H]
+} {
+    \endorigfigure
+}
+
+%% citation setup
+\usepackage{csquotes}
+
+$if(natbib)$
+\usepackage{natbib}
+\bibliographystyle{$if(biblio-style)$$biblio-style$$else$plainnat$endif$}
+$endif$
+$if(biblatex)$
+\usepackage[backend=biber, maxbibnames = 99, style = apa]{biblatex}
+\setlength\bibitemsep{1.5\itemsep}
+\addbibresource{R_packages.bib}
+$if(biblio-files)$
+\bibliography{$biblio-files$}
+$endif$
+$endif$
+$if(listings)$
+\usepackage{listings}
+$endif$
+$if(lhs)$
+\lstnewenvironment{code}{\lstset{language=Haskell,basicstyle=\small\ttfamily}}{}
+$endif$
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+$if(verbatim-in-note)$
+\usepackage{fancyvrb}
+\VerbatimFootnotes
+$endif$
+$if(tables)$
+\usepackage{longtable,booktabs}
+$endif$
+$if(graphics)$
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+$endif$
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true, linktocpage = TRUE]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={$author-meta$},
+            pdftitle={$title-meta$},
+            colorlinks=true,
+            citecolor=$if(citecolor)$$citecolor$$else$blue$endif$,
+            urlcolor=$if(urlcolor)$$urlcolor$$else$blue$endif$,
+            linkcolor=$if(linkcolor)$$linkcolor$$else$magenta$endif$,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+$if(links-as-notes)$
+% Make links footnotes instead of hotlinks:
+\renewcommand{\href}[2]{#2\footnote{\url{#1}}}
+$endif$
+$if(strikeout)$
+\usepackage[normalem]{ulem}
+% avoid problems with \sout in headers with hyperref:
+\pdfstringdefDisableCommands{\renewcommand{\sout}{}}
+$endif$
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+$if(numbersections)$
+\setcounter{secnumdepth}{5}
+$else$
+\setcounter{secnumdepth}{0}
+$endif$
+$if(verbatim-in-note)$
+\VerbatimFootnotes % allows verbatim text in footnotes
+$endif$
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+$if(title)$
+  \title{$title$}
+  \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+$else$
+  \title{}
+  \pretitle{\vspace{\droptitle}}
+  \posttitle{}
+$endif$
+$if(subtitle)$
+\subtitle{$subtitle$}
+$endif$
+$if(author)$
+  \author{$for(author)$$author$$sep$ \\ $endfor$}
+  \preauthor{\centering\large\emph}
+  \postauthor{\par}
+$else$
+  \author{}
+  \preauthor{}\postauthor{}
+$endif$
+$if(date)$
+  \predate{\centering\large\emph}
+  \postdate{\par}
+  \date{$date$}
+$else$
+  \date{}
+  \predate{}\postdate{}
+$endif$
+
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+%% linespread settings
+
+\usepackage{setspace}
+
+$if(linespread)$
+\linespread{$linespread$}
+$else$
+\onehalfspacing
+$endif$
+
+% Language Setup
+
+\usepackage{ifthen}
+\usepackage{iflang}
+\usepackage[super]{nth}
+\usepackage[ngerman, english]{babel}
+
+%Acronyms
+\usepackage[printonlyused, withpage, nohyperlinks]{acronym}
+\usepackage{changepage}
+
+% Multicols for the Title page
+\usepackage{multicol}
+
+
+\usepackage{longtable}
+
+\begin{document}
+
+$if(language)$
+\ifthenelse{\equal{$language$}{german}}{
+  \selectlanguage{ngerman}
+  }{
+  \selectlanguage{english}
+  }
+$else$
+\selectlanguage{english}
+$endif$
+
+
+%\maketitle
+
+\begin{titlepage}
+  \noindent\begin{minipage}{0.6\textwidth}
+	  \IfLanguageName{english}{University of Duisburg-Essen}{Universit\"at Duisburg-Essen}\\
+	  \IfLanguageName{english}{Faculty of Business Administration and Economics}{Fakult\"at f\"ur Wirtschaftswissensschaften}\\
+	  \IfLanguageName{english}{Chair of Econometrics}{Lehrstuhl f\"ur \"Okonometrie}\\
+  \end{minipage}
+	\begin{minipage}{0.4\textwidth}
+	  \begin{flushright}
+  	  \vspace{-0.5cm}
+      \IfLanguageName{english}{\includegraphics*[width=5cm]{Includes/duelogo_en.png}}{\includegraphics*[width=5cm]{Includes/duelogo_de.png}}
+	  \end{flushright}
+	\end{minipage}
+  \\
+  \vspace{1.5cm}
+  \begin{center}
+  \huge{$title$}\\
+  \vspace{.25cm}
+  \Large{$subtitle$}\\
+  \vspace{0.5cm}
+  \large{$type$}\\
+  \vspace{1cm}
+  \large{
+  \IfLanguageName{english}{Submitted to the Faculty of \\ Business Administration and Economics \\at the \\University of Duisburg-Essen}{Vorgelegt der \\Fakult\"at f\"ur Wirtschaftswissenschaften der \\ Universit\"at Duisburg-Essen}\\}
+  \vspace{0.75cm}
+  \large{\IfLanguageName{english}{from:}{von:}}\\
+  \vspace{0.5cm}
+  $author$\\
+  \end{center}
+  %\vspace{2cm}
+  \vfill
+  \hrulefill
+
+  \noindent\begin{minipage}[t]{0.3\textwidth}
+  \IfLanguageName{english}{Reviewer:}{Erstgutachter:}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}$supervisor$
+  \end{minipage}
+
+  \noindent\begin{minipage}[t]{0.3\textwidth}
+  \IfLanguageName{english}{Deadline:}{Abgabefrist:}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}$deadline$
+  \end{minipage}
+
+  \hrulefill
+
+  \begin{multicols}{$cols_authors$}
+
+  Name:
+
+  Matriculation No.:
+
+  E-Mail:
+
+  Study Path:
+
+  Semester:
+
+  Graduation (est.):
+
+  \columnbreak
+
+  Ape Monkey
+
+  123456
+
+  Ape@Monkey.biz
+
+  M.Sc. Economics
+
+  \nth{5}
+
+  Summer Term 2020
+
+  \columnbreak
+
+  John Doe
+
+  234567
+
+  john.doe@web.de
+
+  M.Sc. Economics
+
+  \nth{4}
+
+  Summer Term 2020
+
+  \columnbreak
+
+  Darth Vader
+
+  543556
+
+  vader@emperialenterprises.com
+
+  M.Sc. Economics
+
+  \nth{3}
+
+  Summer Term 2020
+
+  \end{multicols}
+
+\end{titlepage}
+
+\newgeometry{top=2cm, left = 5cm, right = 2.5cm, bottom = 2.5cm}
+
+$if(abstract)$
+\begin{abstract}
+$abstract$
+\end{abstract}
+$endif$
+
+$for(include-before)$
+$include-before$
+
+$endfor$
+$if(toc)$
+\pagenumbering{Roman}
+{
+\hypersetup{linkcolor=black}
+
+\setcounter{tocdepth}{$toc-depth$}
+\tableofcontents
+}
+$endif$
+
+$if(lof)$
+\newpage
+\listoffigures
+\addcontentsline{toc}{section}{List of Figures}
+$endif$
+
+$if(lot)$
+%\newpage
+\listoftables
+\addcontentsline{toc}{section}{List of Tables}
+$endif$
+
+\section*{List of Abbreviations}
+\addcontentsline{toc}{section}{List of Abbreviations}
+
+\begin{adjustwidth}{1.5em}{0pt}
+
+\begin{acronym}[dummyyyy]
+ \acro{ECTSCP}{European Credit Transfer System Credit Point}
+ \acro{lasso}{Least Absolute Shrinkage and Selection Operator}
+ \acro{pcr}{Principal Components Regression}
+ \acro{pls}{Partial Least Squares}
+ \acro{RMSE}{Root Mean Squared Error}
+ \acroplural{LRG}[LRG]{laengefristige Refinanzierungsgeschaefte}
+
+%Falls eine Abkuerzung in der Mehrzahl nicht einfach auf "s" endet muss das speziell eingestellt werden.
+% \acro{slmtA}{super lange mega tolle Abkuerzung} %Einzahl
+ %\acroplural{slmtA}[slmtAs]{super lange mega tolle Abkuerzungen} %Mehrzahl
+ \acro{dummyyyy}{dummyyy}
+\end{acronym}
+
+\end{adjustwidth}
+
+\restoregeometry
+
+\newpage
+\pagenumbering{arabic}
+$body$
+$if(natbib)$
+
+$if(biblio-files)$
+$if(biblio-title)$
+$if(book-class)$
+\renewcommand\bibname{$biblio-title$}
+$else$
+\renewcommand\refname{$biblio-title$}
+$endif$
+$endif$
+\bibliography{$biblio-files$}
+
+$endif$
+$endif$
+$for(include-after)$
+$include-after$
+
+$endfor$
+
+\end{document}

@@ -265,8 +265,10 @@ full_data_final <- cbind(ds.w.imputed.dummies,
                          mx.result.tibble) %>% as_tibble()
 
 # fast estimation of correlation matrix
-cor.filter <- select_if(ds.w.imputed.dummies, is.numeric)
-cor(cor.filter, method = "spearman")
+cor.filter <- select_if(ds, is.numeric)
+matrix <- cor(cor.filter, method = "spearman")
+highCorFeatures <- findCorrelation(matrix, cutoff = 0.9, exact = TRUE)
+ds <- ds[,-highCorFeatures]
 
 # save datasets
 write.csv(full_data_final, file = "data/full_data_w_dummies_interaction.csv")
