@@ -271,7 +271,5 @@ highCorFeatures <- findCorrelation(matrix, cutoff = 0.9, exact = TRUE)
 ds <- ds[,-highCorFeatures]
 
 
-full_data_final <- subset(ds, select = -c(row_w_na, educcat, maritalcat, occrecode, wrkstat, gender, X, X.1) )
-
 # save datasets
 write.csv(full_data_final, file = "data/full_data_w_dummies_interaction.csv")
