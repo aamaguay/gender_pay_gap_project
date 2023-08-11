@@ -76,24 +76,24 @@ x_cols_dummys <- x_cols_dummys[!x_cols_dummys %in% c("armed_forces", "other_wrks
 
 
 #Lasso
-lasso <- train(realrinc ~ female + . - log_realrinc, data = train, 
+formula <- as.formula(paste("realrinc ~", paste(x_cols_dummys, collapse = " + ")))
+lasso <- train(formula, data = train, 
                 method = "glmnet", trControl = trainControl(method = "cv"), 
                 tuneGrid = expand.grid(alpha = 1, lambda = seq(0,500,1)))
-caret::RMSE(pred = predict(lasso, validation), obs = validation$realrinc) #25287.22
+caret::RMSE(pred = predict(lasso, validation), obs = validation$realrinc) #25504.58
 
 
 #Ridge
-ridge <- train(realrinc ~ female + . - log_realrinc, data = train,
+ridge <- train(formula, data = train,
   method = "glmnet", trControl = trainControl(method = "cv"),
-  tuneGrid = expand.grid(alpha = 0, lambda = seq(0, 500, 1))) #25320.77
+  tuneGrid = expand.grid(alpha = 0, lambda = seq(0, 500, 1))) #25524.85
 caret::RMSE(pred = predict(ridge, validation), obs = validation$realrinc)
 
 #Elastic Net
-elasticnet <- train(realrinc ~ female + . - log_realrinc, data = train,
+elasticnet <- train(formula, data = train,
                     method = "glmnet", trControl = trainControl(method = "cv"),
                     tuneGrid = expand.grid(alpha = seq(from=0, to=1, by = 0.1),
                     lambda = seq(from=0, to=0.15, by = 0.001)))
 caret::RMSE(pred = predict(elasticnet, validation), obs = validation$realrinc) #25241.7
 
 
-write.csv(ds, file = "data/final_data.csv")

@@ -58,7 +58,7 @@ To predict `realrinc` we use several regression techniques:
 
 -   Random Forest
 
-In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%), a validation (15%) and a test data set (15%). We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RSME) using the validation data.
+In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%) and a test (30%) dataset. We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RSME) using the validation data.
 
 [Write something about why to use RSME]
 
@@ -74,7 +74,9 @@ With this dataset we create dummy variables for the factor variables. Additional
 
 [Something about ANOVA test for interaction variables].
 
-In a final step we calculate the correlation matrix using Spearman's rank correlation coefficient. We remove all variables that have a higher than 90% correlation with each other. Our final dataset then contains 33,233 of 347 variables.
+In a final step we calculate the correlation matrix using Spearman's rank correlation coefficient. We remove all variables that have a higher than 90% correlation with each other. Our final dataset then contains 33,244 observations of 361 variables.
+
+[Something about how we define the x variables for the models]
 
 # Model Training and Tuning
 
@@ -82,24 +84,69 @@ We used five different regression techniques to predict the individuals' wages u
 
 ## Linear and Logistic Regression
 
-Our baseline linear model uses an OLS regression including all interaction variables. This results in an RMSE of 20,075.61.
+Our baseline linear model uses an OLS regression including all interaction variables. This results in an RMSE of 25,506.05.
 
-``` R
-mod_full <- train(realrinc ~  . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
+``` r
+formula <- as.formula(paste("realrinc ~", paste(x_cols_dummys, collapse = " + ")))
+mod_full <- train(formula,
                   data = train, 
                   method = "lm",  
                   trControl = trainControl(method = "cv"))
 ```
 
-Given some extreme outliers in the income distribution of our data (which is typical for wage data) we follow the economic literature ([https://onlinelibrary.wiley.com/toc/14680084/2008/70/s1](#0)) [correct citation missing] and fit a logistic model to our data, using the log of `realrinc` as our dependent variable. This results in a higher RMSE than the linear model (35,844.61).
+Given some extreme outliers in the income distribution of our data (which is typical for wage data) we follow the economic literature ([https://onlinelibrary.wiley.com/toc/14680084/2008/70/s1](#0)) [correct citation missing] and fit a logistic model to our data, using the log of `realrinc` as our dependent variable. This results in a higher RMSE than the linear model (25,909.82).
 
-``` R
-mod_loginc <- train(log_realrinc ~ . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr,
+``` r
+formula2 <- as.formula(paste("log_realrinc ~", paste(x_cols_dummys, collapse = " + ")))
+mod_loginc <- train(formula2,
                     data = train, 
                     method = "lm",  
-                    trControl = trainControl(method = "cv")) 
+                    trControl = trainControl(method = "cv"))
 ```
 
-In both models the coefficient of female remains statistically insignificant at conventional levels. This suggests that gender is not a driving factor for wages within our data.
+In both models the coefficient of female is statistically significant with p \< 0.001. It suggests that being female decreases the real income by approximately 10,192\$ in the linear model or by 40% in the logistic model.
 
-## Support Vector Machines
+## Subset Selection
+
+As the dataset contains many variables (361) and even our selection of dummy variables for the right-hand side of the regression leaves us with 53 variables, we make use of regression techniques for subset selection. We use lasso, ridge and elastic net regressions. These methods allow us to fit a model that contains all variables. Then the model regularizes the coefficient estimates and shrinks them towards zero. In effect, we reduce the estimates' variance which improves the model fit.
+
+We start with a ridge regression.
+
+$$
+RSS + \lambda \sum^p _{j=1} \beta^2_j 
+$$
+
+Hence, the coefficient estimates in a ridge regression minimize the sum of the residual sum of squares (RSS) and the sum of squared coefficients multiplied with a tuning parameter $\lambda$. We estimate $\lambda$ using cross-validation.
+
+``` R
+ridge <- train(formula, data = train,
+  method = "glmnet", trControl = trainControl(method = "cv"),
+  tuneGrid = expand.grid(alpha = 0, lambda = seq(0, 500, 1))) 
+```
+
+Perform a ridge regression to predict real incomes yields an RMSE of 25,524.85.
+
+In contrast to other subset selection methods ridge regression does not exclude any variables from the regression model. Hence, the model is still fitted on 53 covariates. To overcome this issue we also use a lasso regression.
+
+$$
+RSS + \lambda \sum^p_{j=1} | \beta_j |
+$$
+
+In contrast to the ridge regression the lasso regression forces some of the coefficient estimates to be equal to zero if $\lambda$ is sufficiently large. Hence, the regression is not performed on all covariates.
+
+``` R
+lasso <- train(formula, data = train, 
+       method = "glmnet", trControl = trainControl(method = "cv"), 
+       tuneGrid = expand.grid(alpha = 1, lambda = seq(0,500,1)))
+```
+
+To perform the lasso regression in `R` we set $\alpha$ equal to one. The lasso regression yields a lower RMSE than the ridge regression (25,504.58 vs. 25,524.85) and even a lower RMSE than the linear regression.
+
+In a final step we use elastic net regularization which is a linear combination of ridge and lasso regression. The elastic net regularization allows $\alpha$ to vary between zero and one. This results in an RMSE of 25,241.7.
+
+``` R
+elasticnet <- train(formula, data = train,
+       method = "glmnet", trControl = trainControl(method = "cv"),
+       tuneGrid = expand.grid(alpha = seq(from=0, to=1, by = 0.1),
+       lambda = seq(from=0, to=0.15, by = 0.001)))
+```
