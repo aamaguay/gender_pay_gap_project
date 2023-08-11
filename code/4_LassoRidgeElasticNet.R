@@ -43,3 +43,8 @@ ridge <- train(realrinc ~ female + . - occrecode -wrkstat - gender -educcat -mar
 caret::RMSE(pred = predict(ridge, validation), obs = validation$realrinc)
 
 #Elastic Net
+elasticnet <- train(realrinc ~ female + . - occrecode -wrkstat - gender -educcat -maritalcat - age_sqr, data = train,
+                    method = "glmnet", trControl = trainControl(method = "cv"),
+                    tuneGrid = expand.grid(alpha = seq(from=0, to=1, by = 0.1),
+                    lambda = seq(from=0, to=0.15, by = 0.001)))
+caret::RMSE(pred = predict(elasticnet, validation), obs = validation$realrinc) #20045.16
