@@ -42,25 +42,26 @@ crop <- function(im, left = 0, top = 0, right = 0, bottom = 0) {
 
 # Introduction
 
-In this paper we predict individuals' wages using data from the General Social Survey (GSS, 1974-2018). The variable of interest is `realrinc` which varies between 227\$ and 480,145\$. Hence, we can use regression techniques to predict individuals' wages. Additionally, we can consider whether `realrinc` varies by gender and if so, how much.
+In this paper we predict individuals' wages using data from the General Social Survey (GSS, 1974-2018). The variable of interest is `realrinc` which varies between 227\$ and 480,145\$\footnote{In constant 1986 USD.}. Hence, we can use regression techniques to predict individuals' wages. Additionally, we can consider whether `realrinc` varies by gender and if so, how much.
 
 The data from the GSS allow us to consider various control variables such as gender, age, education, occupation, number of children and marital status.
 
-To predict `realrinc` we use several regression techniques:
+The prediction of individuals' wages has been an issue in previous literature. As wages are relevant to companies they want to know how predict wages [@Chakraborti]. Some papers make use of classification techniques to predict wages [@Chakraborti]. As we have numeric values of real wages and not a categeorical variable we do not make use of classification techniques but prefer linear regression techniques such as OLS and Lasso regressions as well as random forests. We prefer these techniques as they handle categorical variables and outliers well, which are features of our data [@Cutler]. Wages were already predicted using random forests by [@Eichinger]. They find that usnig random forests results in better predictions than using linear models. Additionally, they show that gender barely effects the wage predictions.
+
+Based on the previous literature, we use severall regression techniques to predict `realrinc`:
 
 -   Linear Regression
 
 -   Logistic Regression
 
--   Support Vector Machines
+-   Lasso, Ridge and Elastic Net Regression
 
 -   Gradient Boosting
 
 -   Random Forest
 
-In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%) and a test (30%) dataset. We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RSME) using the validation data.
+In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%) and a test (30%) dataset. We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RMSE) using the validation data. We choose the RMSE as it is more sensitive to large errors [@Arour].
 
-[Write something about why to use RSME]
 
 [Write something about cross validation?]
 
@@ -73,6 +74,8 @@ In this dataset still there were missing some values for some observations, e.g.
 With this dataset we create dummy variables for the factor variables. Additionally, we create interaction variables.
 
 [Something about ANOVA test for interaction variables].
+
+[Should we consider outlier handling? cf. Eichinger 2022]
 
 In a final step we calculate the correlation matrix using Spearman's rank correlation coefficient. We remove all variables that have a higher than 90% correlation with each other. Our final dataset then contains 33,244 observations of 361 variables.
 
@@ -94,7 +97,7 @@ mod_full <- train(formula,
                   trControl = trainControl(method = "cv"))
 ```
 
-Given some extreme outliers in the income distribution of our data (which is typical for wage data) we follow the economic literature ([https://onlinelibrary.wiley.com/toc/14680084/2008/70/s1](#0)) [correct citation missing] and fit a logistic model to our data, using the log of `realrinc` as our dependent variable. This results in a higher RMSE than the linear model (25,909.82).
+Given some extreme outliers in the income distribution of our data (which is typical for wage data) we follow the economic literature [@Ermini] and fit a logistic model to our data, using the log of `realrinc` as our dependent variable. This results in a higher RMSE than the linear model (25,909.82).
 
 ``` r
 formula2 <- as.formula(paste("log_realrinc ~", paste(x_cols_dummys, collapse = " + ")))
@@ -118,7 +121,7 @@ $$
 
 Hence, the coefficient estimates in a ridge regression minimize the sum of the residual sum of squares (RSS) and the sum of squared coefficients multiplied with a tuning parameter $\lambda$. We estimate $\lambda$ using cross-validation.
 
-``` R
+``` r
 ridge <- train(formula, data = train,
   method = "glmnet", trControl = trainControl(method = "cv"),
   tuneGrid = expand.grid(alpha = 0, lambda = seq(0, 500, 1))) 
@@ -134,7 +137,7 @@ $$
 
 In contrast to the ridge regression the lasso regression forces some of the coefficient estimates to be equal to zero if $\lambda$ is sufficiently large. Hence, the regression is not performed on all covariates.
 
-``` R
+``` r
 lasso <- train(formula, data = train, 
        method = "glmnet", trControl = trainControl(method = "cv"), 
        tuneGrid = expand.grid(alpha = 1, lambda = seq(0,500,1)))
@@ -144,7 +147,7 @@ To perform the lasso regression in `R` we set $\alpha$ equal to one. The lasso r
 
 In a final step we use elastic net regularization which is a linear combination of ridge and lasso regression. The elastic net regularization allows $\alpha$ to vary between zero and one. This results in an RMSE of 25,241.7.
 
-``` R
+``` r
 elasticnet <- train(formula, data = train,
        method = "glmnet", trControl = trainControl(method = "cv"),
        tuneGrid = expand.grid(alpha = seq(from=0, to=1, by = 0.1),
