@@ -78,22 +78,22 @@ x_cols_dummys <- x_cols_dummys[!x_cols_dummys %in% c("armed_forces", "other_wrks
 #Lasso
 formula <- as.formula(paste("realrinc ~", paste(x_cols_dummys, collapse = " + ")))
 lasso <- train(formula, data = train, 
-                method = "glmnet", trControl = trainControl(method = "cv"), 
+                method = "glmnet", trControl = trainControl(method = "cv", number = 3), 
                 tuneGrid = expand.grid(alpha = 1, lambda = seq(0,500,1)))
-caret::RMSE(pred = predict(lasso, validation), obs = validation$realrinc) #25504.58
+caret::RMSE(pred = predict(lasso, validation), obs = validation$realrinc) #25504.89
 
 
 #Ridge
 ridge <- train(formula, data = train,
-  method = "glmnet", trControl = trainControl(method = "cv"),
+  method = "glmnet", trControl = trainControl(method = "cv", number = 3),
   tuneGrid = expand.grid(alpha = 0, lambda = seq(0, 500, 1))) #25524.85
 caret::RMSE(pred = predict(ridge, validation), obs = validation$realrinc)
 
 #Elastic Net
 elasticnet <- train(formula, data = train,
-                    method = "glmnet", trControl = trainControl(method = "cv"),
+                    method = "glmnet", trControl = trainControl(method = "cv", number = 3),
                     tuneGrid = expand.grid(alpha = seq(from=0, to=1, by = 0.1),
                     lambda = seq(from=0, to=0.15, by = 0.001)))
-caret::RMSE(pred = predict(elasticnet, validation), obs = validation$realrinc) #25241.7
+caret::RMSE(pred = predict(elasticnet, validation), obs = validation$realrinc) #25504.18
 
 
