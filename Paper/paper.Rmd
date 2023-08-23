@@ -46,9 +46,9 @@ In this paper we predict individuals' wages using data from the General Social S
 
 The data from the GSS allow us to consider various control variables such as gender, age, education, occupation, number of children and marital status.
 
-The prediction of individuals' wages has been an issue in previous literature. As wages are relevant to companies they want to know how predict wages [@Chakraborti]. Some papers make use of classification techniques to predict wages [@Chakraborti]. As we have numeric values of real wages and not a categeorical variable we do not make use of classification techniques but prefer linear regression techniques such as OLS and Lasso regressions as well as random forests. We prefer these techniques as they handle categorical variables and outliers well, which are features of our data [@Cutler]. Wages were already predicted using random forests by [@Eichinger]. They find that usnig random forests results in better predictions than using linear models. Additionally, they show that gender barely effects the wage predictions.
+The prediction of individuals' wages has been an issue in previous literature. As wages are relevant to companies they want to know how predict wages [@Chakraborti]. Some papers make use of classification techniques to predict wages [@Chakraborti]. As we have numeric values of real wages and not a categorical variable we do not make use of classification techniques but prefer linear regression techniques such as OLS and Lasso regressions as well as random forests. We prefer these techniques as they handle categorical variables and outliers well, which are features of our data [@Cutler]. Wages were already predicted using random forests by [@Eichinger]. They find that using random forests results in better predictions than using linear models. Additionally, they show that gender barely effects the wage predictions.
 
-Based on the previous literature, we use severall regression techniques to predict `realrinc`:
+Based on the previous literature, we use several regression techniques to predict `realrinc`:
 
 -   Linear Regression
 
@@ -60,52 +60,49 @@ Based on the previous literature, we use severall regression techniques to predi
 
 -   Random Forest
 
-In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%) and a test (30%) dataset. We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RMSE) using the validation data. We choose the RMSE as it is more sensitive to large errors [@Arour].
-
+In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%) and a test (30%) data set. We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RMSE) using the validation data. We choose the RMSE as it is more sensitive to large errors [@Arour].
 
 [Write something about cross validation?]
 
 # Data Preparation & Feature Engineering
 
-The initial data set contains 11 variables and a brief description of each variable is presented here:
+The initial data set contains 11 variables, which are described in the following:
 
-- **year**: survey year
-- **realrinc**: respondent's base income (in constant 1986 USD)
-- **age**: respondent's age in years
-- **occ10**: respondent's occupation code
-- **occrecode**: recode of the occupation code into one of 11 main categories
-- **prestg10**: respondent's occupational prestige score
-- **childs**: number of children
-- **wrkstat**: work status of the respondent (full-time, part-time, temporarily not working, unemployed (laid off), etc)
-- **gender**: respondent's gender
-- **educcat**: respondent's degree level (Less Than High School, High School, etc)
-- **maritalcat**: respondent's marital status (Married, Widowed, Divorced, etc)
+-   **year**: survey year
+-   **realrinc**: respondent's base income (in constant 1986 USD)
+-   **age**: respondent's age in years
+-   **occ10**: respondent's occupation code
+-   **occrecode**: recode of the occupation code into one of 11 main categories
+-   **prestg10**: respondent's occupational prestige score
+-   **childs**: number of children
+-   **wrkstat**: work status of the respondent (full-time, part-time, temporarily not working, unemployed (laid off), etc.)
+-   **gender**: respondent's gender
+-   **educcat**: respondent's degree level (Less Than High School, High School, etc.)
+-   **maritalcat**: respondent's marital status (Married, Widowed, Divorced, etc.)
 
 ## Data Preparation
 
-A data preparation process was carried before the modeling. The initial dataset had 54,842 observations and the outcome variable `realrinc` had 38.55% of missing values. The imputation of the target variable was discarded to avoid generating a bias in the modeling and therefore it was decided to eliminate these records from the original data set. After this, the dataset contained 33,702 observations. Furthermore, it was impossible to deduce the occupation for some observations (`occ10 = 9997`) and these were removed from the dataset. At the end, the final dataset had 33,244 observations, and it was used for the modeling process.
+Before modeling we conduct a data preparation process. The initial data set has 54,842 observations and the outcome variable `realrinc` has 38.55% of missing values. The imputation of the target variable is discarded to avoid generating a bias in the modeling and therefore we decided to eliminate these records from the original data set. After this, the dataset contains 33,702 observations. Furthermore, it is impossible to deduce the occupation for some observations (`occ10 = 9997`) and we remove these from the data set. At the end, the final data set has 33,244 observations, and we use it for the modeling process.
 
-This dataset still had some missing values for the regressors, e.g., number of children, age, marital status, degree level, and others. The imputation process was carried using five variables via `mice` package. The features *age, occupational prestige and number of children* were imputed using the pmm (`predictive mean matching`) method, and whereas the polytomous logistic regression method was used for the factor variables (*education and marital status*). The imputation process used a number of multiple imputations of six, which means that the process had 6 different datasets, and then the estimation of the mean and the majority vote was applied to aggregate the datasets into a single dataset. The mean estimation was applied for the numeric variables and majority vote for the categorical variables..
+This data set still had some missing values for the regressors, e.g., number of children, age, marital status, degree level, and others. We use the `mice` package with five variables for the imputation. The features *age, occupational prestige and number of children* are imputed using the pmm (`predictive mean matching`) method. We use the polytomous logistic regression method for the factor variables (*education and marital status*). The imputation process generates 6 different data sets. We apply the estimation of the mean and the majority vote to aggregate the data sets into a single data set. The mean estimation is applied for the numeric variables and majority vote for the categorical variables..
 
 ## Feature Engineering
 
-The interaction variables were created after the imputation process. First, some interaction features were estimated using only the numerical variables, and then the numerical variables were transformed into categorical variables by dividing them into different ranges (e.g. age between 18 and 30, age between 31 and 50, etc). These new categorical variables and the initial categorical variables (*marital status, education, etc*) were transformed into dummy variables. And finally, the interaction variables were estimated with the group of dummy variables mentioned above.
-The inclusion of the interaction of the numeric variables were validate using a linear model, and the results showed that the p- values of the parameters for the interactions were less than 0,05.
+After the imputation process, we create the interaction variables. First, we estimate some interaction features using only the numerical variables. Then, we transform the numerical variables into categorical variables by dividing them into different ranges (e.g., age between 18 and 30, age between 31 and 50, etc.). We transform these new categorical variables and the initial categorical variables (*marital status, education, etc.*) into dummy variables. And finally, the interaction variables are estimated with the group of dummy variables mentioned above. The inclusion of the interaction of the numeric variables are validate using a linear model, and the results show that the p- values of the parameters for the interactions are less than 0.05.
 
-![table](includes/reg_table.png)
+![table](includes/reg_table.png){width="317"}
 
-Furthermore, a correlation matrix using Spearman's rank correlation coefficient was estimated with some numeric variables in order to support the previous results. The correlation results are shown in the following figure.
+Furthermore, we estimate a correlation matrix using Spearman's rank correlation coefficient with some numeric variables in order to support the previous results. The correlation results are shown in the following figure.
 
 ![matrix_corr](includes/corr_matrix.png)
 
-After the data preparation and feature engineering processes, a final dataset was constructed with 33,244 observations and 421 features. Due to the large number of interaction variables, it was decided to reduce them and use only the interaction between a group of variables (*occrecode, educcat and prestg10*). After reduction, the modeling process was developed with 100 variables (numerical and interaction variables). The following figure shows the overview of the group of variables that were estimated and used in the models.
+After the data preparation and feature engineering processes, we construct a final data set with 33,244 observations and 421 features. Due to the large number of interaction variables, we decided to reduce them and use only the interaction between a group of variables (*occrecode, educcat and prestg10*). After reduction, we develop the modeling process with 100 variables (numerical and interaction variables). The following figure shows the overview of the group of variables that were estimated and used in the models.
 
 ![feature_process](includes/feature_process.png)
 
-
 # Model Training and Tuning
 
-We used five different regression techniques to predict the individuals' wages using the final dataset. We fit every model on our training data using the `train` function from the `caret` package. To choose the best parameter combination we use cross-validation within all train functions.
+We use five different regression techniques to predict the individuals' wages using the final data set. We fit every model on our training data using the `train` function from the `caret` package. To choose the best parameter combination we use cross-validation within all train functions.
 
 ## Linear and Logistic Regression
 
@@ -147,7 +144,7 @@ Hence, the coefficient estimates in a ridge regression minimize the sum of the r
 
 ``` r
 ridge <- train(formula, data = train,
-  method = "glmnet", trControl = trainControl(method = "cv", number = 3,
+  method = "glmnet", trControl = trainControl(method = "cv", number = 3),
   tuneGrid = expand.grid(alpha = 0, lambda = seq(0, 500, 1))) 
 ```
 

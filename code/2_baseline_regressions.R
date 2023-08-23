@@ -73,6 +73,7 @@ x_cols_dummys <- x_cols_dummys[!x_cols_dummys %in% c("armed_forces", "other_wrks
 
 #OLS regressions
 formula <- as.formula(paste("realrinc ~", paste(x_cols_dummys, collapse = " + ")))
+set.seed(123)
 mod_full <- train(formula,
                   data = train, 
                   method = "lm",  
@@ -83,6 +84,7 @@ cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25506.05
 
 
 #exclude any interactions
+set.seed(123)
 mod_wo_interactions <-train(realrinc ~ female + age + prestg10 + childs + armed_forces + business_finance + construction_extraction + farming_fishing_and_forestry + 
                             installation_maintenance_and_repair + office_and_administrative_support + production + professional + sales + service + 
                              + full_time + housekeeper + part_time + retired + school + temporarily_not_working + unemployed_laid_off + bachelor + 
@@ -95,6 +97,7 @@ rmse <- caret::RMSE(pred = predict(mod_wo_interactions, validation), obs = valid
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25588.5
 
 #log(income) as outcome variable
+set.seed(123)
 formula2 <- as.formula(paste("log_realrinc ~", paste(x_cols_dummys, collapse = " + ")))
 mod_loginc <- train(formula2,
                     data = train, 
