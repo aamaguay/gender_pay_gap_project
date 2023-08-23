@@ -54,13 +54,13 @@
 \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
 \newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
 \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
 \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
 \newcommand{\BuiltInTok}[1]{#1}
 \newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
 \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
 \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
 \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
@@ -68,7 +68,7 @@
 \newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
 \newcommand{\ExtensionTok}[1]{#1}
 \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\ImportTok}[1]{#1}
 \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
@@ -77,13 +77,12 @@
 \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
 \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
 \newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
-\usepackage{longtable,booktabs}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -324,362 +323,269 @@
 
 \newpage
 \pagenumbering{arabic}
-\hypertarget{rmarkdown-template}{%
-\section{Rmarkdown Template}\label{rmarkdown-template}}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
 
-Currently there is one thing you need to customise manually in
-\emph{template.tex} which will be used by the \LaTeX processor for
-generating the PDF: the entries in the columns on the title page
-containing student info. Here you have to replace the dummy data:
+In this paper we predict individuals' wages using data from the General
+Social Survey (GSS, 1974-2018). The variable of interest is
+\texttt{realrinc} which varies between 227\$ and
+480,145\$\footnote{In constant 1986 USD.}. Hence, we can use regression
+techniques to predict individuals' wages. Additionally, we can consider
+whether \texttt{realrinc} varies by gender and if so, how much.
 
-\begin{verbatim}
-\begin{multicols}{$cols_authors$}
+The data from the GSS allow us to consider various control variables
+such as gender, age, education, occupation, number of children and
+marital status.
 
-Name:
+The prediction of individuals' wages has been an issue in previous
+literature. As wages are relevant to companies they want to know how
+predict wages \autocite{Chakraborti}. Some papers make use of
+classification techniques to predict wages \autocite{Chakraborti}. As we
+have numeric values of real wages and not a categorical variable we do
+not make use of classification techniques but prefer linear regression
+techniques such as OLS and Lasso regressions as well as random forests.
+We prefer these techniques as they handle categorical variables and
+outliers well, which are features of our data \autocite{Cutler}. Wages
+were already predicted using random forests by \autocite{Eichinger}.
+They find that using random forests results in better predictions than
+using linear models. Additionally, they show that gender barely effects
+the wage predictions.
 
-Matriculation No.:
+Based on the previous literature, we use several regression techniques
+to predict \texttt{realrinc}:
 
-E-Mail:
+\begin{itemize}
+\item
+  Linear Regression
+\item
+  Logistic Regression
+\item
+  Lasso, Ridge and Elastic Net Regression
+\item
+  Gradient Boosting
+\item
+  Random Forest
+\end{itemize}
 
-Study Path:
+In order to evaluate which of the regression techniques predicts
+\texttt{realrinc} the best we split the data set into a train (70\%) and
+a test (30\%) data set. We fit the aforementioned regression models on
+the train data and evaluate the root mean squared error (RMSE) using the
+validation data. We choose the RMSE as it is more sensitive to large
+errors \autocite{Arour}.
 
-Semester:
+{[}Write something about cross validation?{]}
 
-Graduation (est.):
-\end{verbatim}
+\hypertarget{data-preparation-feature-engineering}{%
+\section{Data Preparation \& Feature
+Engineering}\label{data-preparation-feature-engineering}}
 
-If you are just two people, working alone or want to remove the colum
-design you may delete (parts of) this section.
+The initial data set contains 11 variables, which are described in the
+following: - \textbf{year}: survey year - \textbf{realrinc}:
+respondent's base income (in constant 1986 USD) - \textbf{age}:
+respondent's age in years - \textbf{occ10}: respondent's occupation code
+- \textbf{occrecode}: recode of the occupation code into one of 11 main
+categories - \textbf{prestg10}: respondent's occupational prestige score
+- \textbf{childs}: number of children - \textbf{wrkstat}: work status of
+the respondent (full-time, part-time, temporarily not working,
+unemployed (laid off), etc.) - \textbf{gender}: respondent's gender -
+\textbf{educcat}: respondent's degree level (Less Than High School, High
+School, etc.) - \textbf{maritalcat}: respondent's marital status
+(Married, Widowed, Divorced, etc.)
 
-\hypertarget{r-markdown}{%
-\subsection{R Markdown}\label{r-markdown}}
+\hypertarget{data-preparation}{%
+\subsection{Data Preparation}\label{data-preparation}}
 
-This is an R Markdown document. Markdown is a simple formatting syntax
-for authoring HTML, PDF, and MS Word documents. For more details see
-\url{http://rmarkdown.rstudio.com}.
+Before modeling we prepared the data. The initial data set has 54,842
+observations and the outcome variable \texttt{realrinc} has 38.55\% of
+missing values. The imputation of the target variable was discarded to
+avoid generating a bias in the modeling and therefore we decided to
+eliminate these records from the original data set. After this, the data
+set contains 33,702 observations. Furthermore, it was impossible to
+deduce the occupation for some observations (\texttt{occ10\ =\ 9997})
+and these are removed from the data set. At the end, the final data set
+has 33,244 observations, and is used for the modeling process.
 
-You may use \LaTeX~to write formulas, e.g., \(X^2 = \sqrt{X^4}\) and
-\[X^2 = \sqrt{X^4}.\]
+This data set still has some missing values for the regressors, e.g.,
+number of children, age, marital status, degree level, and others. Using
+the \texttt{mice} package we conduct the imputation using five
+variables. We impute the features \emph{age, occupational prestige and
+number of children} using the pmm (\texttt{predictive\ mean\ matching})
+method. The polytomous logistic regression method is used for the factor
+variables (\emph{education and marital status}). The imputation process
+uses a number of multiple imputations of six. This means that the
+imputation process creates 6 different data sets, and then the
+estimation of the mean and the majority vote is applied to aggregate the
+data sets into a single data set. The mean estimation is applied for
+numeric variables and majority vote for categorical variables..
 
-After clicking the \emph{Knit} button in \emph{RStudio}, a (PDF)
-document that includes both content and the output of any embedded R
-code chunks will be generated.
+\hypertarget{feature-engineering}{%
+\subsection{Feature Engineering}\label{feature-engineering}}
 
-You can embed an R code chunk like this:
+After the imputation process we create interaction variables. First,
+some interaction features are estimated using only the numerical
+variables, and then we transform the numerical variables into
+categorical variables by dividing them into different ranges (e.g.~age
+between 18 and 30, age between 31 and 50, etc). These new categorical
+variables and the initial categorical variables (\emph{marital status,
+education, etc}) are transformed into dummy variables. And finally, we
+estimate the interaction variables with the group of dummy variables
+mentioned above. We validate the inclusion of the interaction of the
+numeric variables using a linear model. The results show that the
+p-values of the parameters for the interactions are less than 0.05.
+
+\begin{figure}
+\centering
+\includegraphics{includes/reg_table.png}
+\caption{table}
+\end{figure}
+
+Furthermore, we estimate a correlation matrix using Spearman's rank
+correlation coefficient with some numeric variables in order to support
+the previous results. The correlation results are shown in the following
+figure.
+
+\begin{figure}
+\centering
+\includegraphics{includes/corr_matrix.png}
+\caption{matrix\_corr}
+\end{figure}
+
+After the data preparation and feature engineering processes, we
+construct a final data set with 33,244 observations and 421 features.
+Due to the large number of interaction variables, we decided to reduce
+them and use only the interaction between a group of variables
+(\emph{occrecode, educcat and prestg10}). After reduction, the modeling
+process is developed with 100 variables (numerical and interaction
+variables). The following figure shows the overview of the group of
+variables that we estimated and used in the models.
+
+\begin{figure}
+\centering
+\includegraphics{includes/feature_process.png}
+\caption{feature\_process}
+\end{figure}
+
+\hypertarget{model-training-and-tuning}{%
+\section{Model Training and Tuning}\label{model-training-and-tuning}}
+
+We use five different regression techniques to predict the individuals'
+wages using the final dataset. We fit every model on our training data
+using the \texttt{train} function from the \texttt{caret} package. To
+choose the best parameter combination we use cross-validation within all
+train functions.
+
+\hypertarget{linear-and-logistic-regression}{%
+\subsection{Linear and Logistic
+Regression}\label{linear-and-logistic-regression}}
+
+Our baseline linear model uses an OLS regression including all
+interaction variables. This results in an RMSE of 25,506.05.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{summary}\NormalTok{(cars)}
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"realrinc \textasciitilde{}"}\NormalTok{, }\FunctionTok{paste}\NormalTok{(x\_cols\_dummys, }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)))}
+\NormalTok{mod\_full }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula,}
+                  \AttributeTok{data =}\NormalTok{ train, }
+                  \AttributeTok{method =} \StringTok{"lm"}\NormalTok{,  }
+                  \AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{))}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00
-\end{verbatim}
+Given some extreme outliers in the income distribution of our data
+(which is typical for wage data) we follow the economic literature
+\autocite{Ermini} and fit a logistic model to our data, using the log of
+\texttt{realrinc} as our dependent variable. This results in a higher
+RMSE than the linear model (25,909.82).
 
-\hypertarget{including-plots}{%
-\subsection{Including Plots}\label{including-plots}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{formula2 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"log\_realrinc \textasciitilde{}"}\NormalTok{, }\FunctionTok{paste}\NormalTok{(x\_cols\_dummys, }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)))}
+\NormalTok{mod\_loginc }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula2,}
+                    \AttributeTok{data =}\NormalTok{ train, }
+                    \AttributeTok{method =} \StringTok{"lm"}\NormalTok{,  }
+                    \AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
 
-You can also embed plots, for example:
+In both models the coefficient of female is statistically significant
+with p \textless{} 0.001. It suggests that being female decreases the
+real income by approximately 10,192\$ in the linear model or by 40\% in
+the logistic model.
 
-\begin{figure}
-\centering
-\includegraphics{paper_files/figure-latex/pressure-1.pdf}
-\caption{\label{fig:pressure} Pressure}
-\end{figure}
+\hypertarget{subset-selection}{%
+\subsection{Subset Selection}\label{subset-selection}}
 
-Note that the \texttt{echo\ =\ FALSE} parameter was added to the code
-chunk to prevent printing of the R code that generated the plot. You can
-label the plot above by including the label
-\texttt{\textbackslash{}\textbackslash{}label\{fig:pressure\}} in the
-chunk argument \texttt{fig.cap}. A reference to the plot is then made as
-follows:
+As the dataset contains many variables (361) and even our selection of
+dummy variables for the right-hand side of the regression leaves us with
+53 variables, we make use of regression techniques for subset selection.
+We use lasso, ridge and elastic net regressions. These methods allow us
+to fit a model that contains all variables. Then the model regularizes
+the coefficient estimates and shrinks them towards zero. In effect, we
+reduce the estimates' variance which improves the model fit.
 
-Looking at Figure \ref{fig:pressure} makes me happy.
+We start with a ridge regression.
 
-\hypertarget{the-yaml-header}{%
-\subsection{The YAML Header}\label{the-yaml-header}}
+\[
+RSS + \lambda \sum^p _{j=1} \beta^2_j 
+\]
 
-The YAML header is at the very top of this document. It is enclosed by 3
-dashes. Although some useful options are specified already (most of
-which are hopefully self-explaining) you may want additional
-customisation. Below we discuss useful options that we have implemented
-for you.
+Hence, the coefficient estimates in a ridge regression minimize the sum
+of the residual sum of squares (RSS) and the sum of squared coefficients
+multiplied with a tuning parameter \(\lambda\). We estimate \(\lambda\)
+using cross-validation.
 
-\emph{Note that \textbf{indentation and line breaks matter} in the YAML
-header.} More about that
-\href{https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/\#yaml}{here}.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ridge }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train,}
+  \AttributeTok{method =} \StringTok{"glmnet"}\NormalTok{, }\AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{),}
+  \AttributeTok{tuneGrid =} \FunctionTok{expand.grid}\NormalTok{(}\AttributeTok{alpha =} \DecValTok{0}\NormalTok{, }\AttributeTok{lambda =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{500}\NormalTok{, }\DecValTok{1}\NormalTok{))) }
+\end{Highlighting}
+\end{Shaded}
 
-\hypertarget{language}{%
-\subsubsection{\texorpdfstring{\texttt{language}}{language}}\label{language}}
+Perform a ridge regression to predict real incomes yields an RMSE of
+25,524.85.
 
-This variable affects mainly the headings of your output file and
-automatic hyphenation.
+In contrast to other subset selection methods ridge regression does not
+exclude any variables from the regression model. Hence, the model is
+still fitted on 53 covariates. To overcome this issue we also use a
+lasso regression.
 
-You can set this to \texttt{english} or \texttt{german} like this:
+\[
+RSS + \lambda \sum^p_{j=1} | \beta_j |
+\]
 
-\texttt{language:\ english}
+In contrast to the ridge regression the lasso regression forces some of
+the coefficient estimates to be equal to zero if \(\lambda\) is
+sufficiently large. Hence, the regression is not performed on all
+covariates.
 
-\texttt{language:\ german}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lasso }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train, }
+       \AttributeTok{method =} \StringTok{"glmnet"}\NormalTok{, }\AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{), }
+       \AttributeTok{tuneGrid =} \FunctionTok{expand.grid}\NormalTok{(}\AttributeTok{alpha =} \DecValTok{1}\NormalTok{, }\AttributeTok{lambda =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{500}\NormalTok{,}\DecValTok{1}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
 
-If the language is not specified in the YAML header it will be set to
-\texttt{english}.
+To perform the lasso regression in \texttt{R} we set \(\alpha\) equal to
+one. The lasso regression yields a lower RMSE than the ridge regression
+(25,504.58 vs.~25,524.85) and even a lower RMSE than the linear
+regression.
 
-\hypertarget{linespread}{%
-\subsubsection{\texorpdfstring{\texttt{linespread}}{linespread}}\label{linespread}}
+In a final step we use elastic net regularization which is a linear
+combination of ridge and lasso regression. The elastic net
+regularization allows \(\alpha\) to vary between zero and one. This
+results in an RMSE of 25,241.7.
 
-The default value for the linespread is 1.5. Usually this is fine and
-sometimes it's required. If you nevertheless want to change it you can
-do so by specifying the linespread variable, e.g.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{elasticnet }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train,}
+       \AttributeTok{method =} \StringTok{"glmnet"}\NormalTok{, }\AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{),}
+       \AttributeTok{tuneGrid =} \FunctionTok{expand.grid}\NormalTok{(}\AttributeTok{alpha =} \FunctionTok{seq}\NormalTok{(}\AttributeTok{from=}\DecValTok{0}\NormalTok{, }\AttributeTok{to=}\DecValTok{1}\NormalTok{, }\AttributeTok{by =} \FloatTok{0.1}\NormalTok{),}
+       \AttributeTok{lambda =} \FunctionTok{seq}\NormalTok{(}\AttributeTok{from=}\DecValTok{0}\NormalTok{, }\AttributeTok{to=}\FloatTok{0.15}\NormalTok{, }\AttributeTok{by =} \FloatTok{0.001}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
 
-\texttt{linespread:\ 1}
-
-\hypertarget{rmarkdown-makes-your-life-easy}{%
-\section{Rmarkdown makes your life
-easy}\label{rmarkdown-makes-your-life-easy}}
-
-\hypertarget{the-kable-function}{%
-\subsection{The kable function}\label{the-kable-function}}
-
-In empirical work it's crucial not only to present your results but also
-to explain your research strategy. This often involves tables presenting
-data and results. Generating tables by hand using \LaTeX is an option
-but may be time consuming. However, there is a variety of R packages
-that automate this. One of them is the \texttt{kable} package. It can
-generate \LaTeX tables from a variety of R Objects.
-
-Example: you are working on an analysis of black cherry trees and want
-to present \(n\) observations to the reader You can do that using
-\texttt{knitr::kable()}.
-
-\begin{longtable}[]{@{}rrr@{}}
-\caption{6 Observations from the trees Dataset}\tabularnewline
-\toprule\noalign{}
-Diameter & Height & Volume \\
-\midrule\noalign{}
-\endfirsthead
-\toprule\noalign{}
-Diameter & Height & Volume \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-17.9 & 80 & 58.3 \\
-8.3 & 70 & 10.3 \\
-10.8 & 83 & 19.7 \\
-10.7 & 81 & 18.8 \\
-18.0 & 80 & 51.0 \\
-8.6 & 65 & 10.3 \\
-\end{longtable}
-
-Now that we have presented our data it's analysis time! Lets start with
-a quick call to summary().
-
-\hypertarget{the-stargazer-package}{%
-\subsection{The Stargazer package}\label{the-stargazer-package}}
-
-Calling summary() in a code chunk will work but this will give you quite
-an ugly result (just try it for yourself!). When it comes to presenting
-more structured objects like summaries, model results or for example
-correlation matrices the stargazer package is well suited.
-
-\begin{table}[!htbp] \centering 
-  \caption{Summary} 
-  \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lccccc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
-Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\ 
-\hline \\[-1.8ex] 
-Girth & 31 & 13.248 & 3.138 & 8.300 & 20.600 \\ 
-Height & 31 & 76.000 & 6.372 & 63 & 87 \\ 
-Volume & 31 & 30.171 & 16.438 & 10.200 & 77.000 \\ 
-\hline \\[-1.8ex] 
-\end{tabular} 
-\end{table}
-
-Assume we want to evaluate how the height and the volume of a typical
-cherry tree are related. We are estimating this using OLS to estimate a
-simple linear model.
-
-\begin{table}[!htbp] \centering 
-  \caption{Regression results} 
-  \label{} 
-\begin{tabular}{@{\extracolsep{5pt}}lc} 
-\\[-1.8ex]\hline 
-\hline \\[-1.8ex] 
- & \multicolumn{1}{c}{\textit{Dependent variable:}} \\ 
-\cline{2-2} 
-\\[-1.8ex] & Volume \\ 
-\hline \\[-1.8ex] 
- Height & 1.543$^{***}$ \\ 
-  & (0.384) \\ 
-  & \\ 
- Constant & $-$87.124$^{***}$ \\ 
-  & (29.273) \\ 
-  & \\ 
-\hline \\[-1.8ex] 
-Observations & 31 \\ 
-R$^{2}$ & 0.358 \\ 
-Adjusted R$^{2}$ & 0.336 \\ 
-Residual Std. Error & 13.397 (df = 29) \\ 
-F Statistic & 16.164$^{***}$ (df = 1; 29) \\ 
-\hline 
-\hline \\[-1.8ex] 
-\textit{Note:}  & \multicolumn{1}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
-\end{tabular} 
-\end{table}
-
-Now that we have our model we can visualize it.
-
-\begin{figure}
-\centering
-\includegraphics{paper_files/figure-latex/unnamed-chunk-4-1.pdf}
-\caption{Dataset and regression}
-\end{figure}
-
-By the way: the (\LaTeX) command \texttt{\textbackslash{}pagebreak} can
-be used to force a page break.
-
-\pagebreak
-
-\hypertarget{citations}{%
-\subsection{Citations}\label{citations}}
-
-A \emph{bibtex} bibliography can be used for citations. The bibliography
-file used in this template is \texttt{references.bib} and you find it in
-the project directory. It is easily edited using \emph{RStudio}
-
-A simple \emph{bibtex} entry looks like this:
-
-\begin{verbatim}
-@book{
-  Hastie2013,
-  publisher = {Springer},
-  year = {2013},
-  title = {The elements of statistical learning},
-  author = {Hastie, Trevor and Tibshirani, Robert and Friedman, Jerome H.},
-}
-\end{verbatim}
-
-The first field (\texttt{Hastie2013}) is the identifier which allows you
-to cite a reference.
-
-You can cite a source in Harvard style like this: \autocite{Hastie2013}
-or \textcite{Hastie2013}.
-
-A cited source will be automatically added to the reference section at
-the end of the document.
-
-\pagebreak
-
-\hypertarget{conclusion}{%
-\section{\texorpdfstring{Conclusion
-\label{chap:conc}}{Conclusion }}\label{conclusion}}
-
-Your conclusion. Note that you may also refer to a specific chapter or
-section in the document, provided there is a label. We have anchored a
-label to the section header of the Conclusion. You may reference it as
-follow: See Chapter \ref{chap:conc}.
-
-This section allows you to reference R packages used in the analysis.
-Simply include them in \texttt{R\_packages.bib} as \emph{bibtex} entries
-and include the identifiers using
-\texttt{\textbackslash{}notecite\{...\}} as shown below.
-
-\pagebreak
-
-\addcontentsline{toc}{section}{References}
-\printbibliography[title = References]
-\cleardoublepage
-
-\begin{refsection}
-\nocite{R-base}
-\nocite{R-Studio}
-
-\printbibliography[title = Software-References]
-\addcontentsline{toc}{section}{Software-References}
-\end{refsection}
-
-\cleardoublepage
-\appendix
-\setcounter{table}{0}
-\setcounter{figure}{0}
-\renewcommand{\thetable}{A\arabic{table}}
-\renewcommand{\thefigure}{A\arabic{figure}}
-
-\newgeometry{top=2.5cm, left = 2cm, right = 2cm, bottom = 2.5cm}
-
-\hypertarget{appendix}{%
-\section{Appendix}\label{appendix}}
-
-\hypertarget{description-of-relevant-variables}{%
-\subsection{\texorpdfstring{Description of relevant Variables
-\label{app:A}}{Description of relevant Variables }}\label{description-of-relevant-variables}}
-
-An example using the LaTeX environment \emph{longtable}:
-
-\begin{longtable}{l|l|p{6cm}}
-\caption{Description of relevant variables} \\
-\hline
-\textbf{Variable} & \textbf{Dataset} & \textbf{Description}    \\
-\hline
-\endfirsthead % Erster Kopf zu Ende
-% Definition des Tabellenkopfes auf den folgenden Seiten
-\caption{Description of relevant variables (continued)}\\
-\hline
-\textbf{Variable} & \textbf{Dataset} & \textbf{Description}    \\
-\hline
-\endhead % Zweiter Kopf ist zu Ende
-\multicolumn{3}{r}{Continued on the next page.}\\
-\endfoot
-\hline
-\multicolumn{3}{r}{End of table.} \\
-\endlastfoot
-Student.Pseudonym & all & Student’s immatriculation number \\
-\hline
-Semester & FS Data & Academic semester. The first four digits stand for the year, the fifth digit is either a 1 (summer semester) or a 2 (winter semester). Example: "20062" describes the winter semester 2006/2007, "20071" the summer semester 2007 \\
-\hline
-FS & FS, Pruefung Data & Study semester \\
-\hline
-Status & FS Data & Status as a student. "R" stands for re-enrollment, "N" for new enrollment, "E" for initial enrollment and "B" for leave of absence \\
-\hline
-Status.dpp & Pruefung Data & See variable Status \\
-\hline
-Austrittsgrund & FS, Studium Data & Reason for dropping out \\
-\hline
-SGCode & all & Code for study program. The last digit represents the examination regulations (PO). A change to the PO is thus considered as a new program in the system \\
-\hline
-Abschluss\_Bezeichnung & FS, Pruefung Data & Name of the degree that students receive upon successful completion of their studies \\
-\hline
-Fach\_Bezeichnung & FS, Pruefung Data & Name of the course of studies \\
-\hline
-PO & all & Examination regulations \\
-\hline
-PolyvalentePruefungsnummer & Pruefung Data & Polyvalent examination number \\
-\hline
-Bezeichnung & Pruefung Data & Name of the examination \\
-\hline
-Pruefungssemester & Pruefung Data & Semester in which the student was registered for the exam. Structure analogous to the variable ‘Semester’ in FS Data \\
-\hline
-Status.Pruefung & Pruefung Data & Status of the exam. "BE" means Passed, "ZU" means Withdrawn, "NB" means Not Passed and "PV" means Examination Existing (applications or performances are available, but the whole module is not yet completed) \\
-\hline
-Versuchszahl & Pruefung Data & Trial number \\
-\hline
-Note & Pruefung Data & Grade \\
-\hline
-VerbuchteECTSCP & Pruefung Data & Received ECTSCP \\
-\hline
-Start\_Semester & Studium Data & Semester in which the studies were started. Structure analogous to the variable ‘Semester’ in FS Data \\
-\hline
-Ende\_Semester & Studium Data & Semester in which the studies were finshed. Structure analogous to the variable ‘Semester’ in FS Data
-\label{tab_var}
-\end{longtable}
 
 \end{document}

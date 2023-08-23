@@ -32,16 +32,7 @@ editor_options:
 
 <!-- below function does some formatting for images; leave this untouched unless you know better :-) -->
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(magick)
-library(tidyverse)
-library(stargazer)
-crop <- function(im, left = 0, top = 0, right = 0, bottom = 0) {
-  d <- dim(im[[1]]); w <- d[2]; h <- d[3]
-  image_crop(im, glue::glue("{w-left-right}x{h-top-bottom}+{left}+{top}"))
-}
-```
+
 
 # Introduction
 
