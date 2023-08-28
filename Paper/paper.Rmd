@@ -46,7 +46,7 @@ In this paper we predict individuals' wages using data from the General Social S
 
 The data from the GSS allow us to consider various control variables such as gender, age, education, occupation, number of children and marital status.
 
-The prediction of individuals' wages has been an issue in previous literature. As wages are relevant to companies they want to know how predict wages [@Chakraborti]. Some papers make use of classification techniques to predict wages [@Chakraborti]. As we have numeric values of real wages and not a categorical variable we do not make use of classification techniques but prefer linear regression techniques such as OLS and Lasso regressions as well as random forests. We prefer these techniques as they handle categorical variables and outliers well, which are features of our data [@Cutler]. Wages were already predicted using random forests by [@Eichinger]. They find that using random forests results in better predictions than using linear models. Additionally, they show that gender barely effects the wage predictions.
+The prediction of individuals' wages has been an issue in previous literature. As wages are relevant to companies they want to know how predict wages [@Chakraborti]. Some papers make use of classification techniques to predict wages [@Chakraborti]. As we have numeric values of real wages and not a categorical variable we do not make use of classification techniques but prefer linear regression techniques such as OLS and Lasso regressions as well as random forests. We prefer these techniques as they handle categorical variables and outliers well, which are features of our data [@Cutler]. Wages were already predicted using random forests by [@Eichinger]. They find that using random forests results in better predictions than using linear models. Additionally, they show that gender barely effects the wage predictions. Likewise, the boosting methods used by [@Chakrabarty2018] in salary level classification problems showed better performance compared to a traditional algorithm such as SVM. Furthermore, [@BonaccoltoToepfer1612] suggests the use of a penalization approach for high dimensional problems in his research about Gender wage inequality.
 
 Based on the previous literature, we use several regression techniques to predict `realrinc`:
 
@@ -174,3 +174,100 @@ elasticnet <- train(formula, data = train,
        tuneGrid = expand.grid(alpha = seq(from=0, to=1, by = 0.1),
        lambda = seq(from=0, to=0.15, by = 0.001)))
 ```
+
+## Random Forest
+
+According to the literature review, tree-based models perform considerably well in range in predicting income ranges (classification problems). For this reason, the Random forest algorithm is used for modeling. This experiment use the income without logarithm transformation, the initial features and some interaction variables.
+
+``` r
+tnr_rdgrid_search = tnr("random_search", batch_size = 10)
+rsmp_cv3 = rsmp("cv", folds = 3)
+msr_ce = msr("regr.rmse")
+learner = lrn("regr.lightgbm",
+              boosting = "rf",
+              objective = "regression",
+              max_depth = to_tune(seq(5,12,1)),
+              num_leaves = to_tune(seq(270,280,1)),
+              num_iterations  = to_tune(seq(132,137,1)),
+              min_data_in_leaf = to_tune(seq(70,85,1)),
+              min_data_in_bin = to_tune(seq(10,15, 1)),
+              feature_fraction_bynode = to_tune(seq(0.3,0.4,0.1)),
+              bagging_fraction = to_tune(seq(0.2,0.3,0.1)),
+              bagging_freq = to_tune(seq(3,5,1)),
+              feature_fraction = to_tune(seq(0.7,0.9,0.1)),
+              convert_categorical = TRUE,
+              force_col_wise = TRUE,
+              verbose = 1,
+              num_threads = 5
+)
+
+instance.rf = tune(
+  tuner = tnr_rdgrid_search,
+  task = task,
+  learner = learner,
+  resampling = rsmp_cv3,
+  measures = msr_ce,
+  term_evals = 150,
+  store_models = FALSE
+)
+```
+
+Due to the number of hyper parameters in Random Forest, we use the `lightgbm` and `mlr3` packages to model and tune the hyper parameter in a time-optimal way. After many attempts, we found the best hyper parameters that produced the lowest error. The hyper parameters tuned were `max_depth`, `num_leaves`, `num_iterations` and others. In addition, we used a random search approach in the tuning process with a cross-validation of 3.
+Once we found the model along with the hyper parameters with lowest error in the cross-validation, we proceeded to evaluate this model on the test data set and obtained a RMSE of 31745.54. The hyper parameters of the best model are shown in the following table.
+
+[best hyper parameter of RF]
+
+In addition, we can analyze the importance of the features within the modeling process using Random Forest, and these results are shown in the following table.
+
+[feature importance of RF]
+
+
+## Gradient Boosting
+
+Gradient Boosting also has many hyper parameters like Random Forest and we decided to apply a similar approach to the previous algorithm to find the best model with the hyper parameters (random search approach in the tuning process with a cross-validation of 3). Furthermore, the experiments with Gradient Boosting used the target variable without logarithm transformation.
+
+``` r
+tnr_rdgrid_search = tnr("random_search", batch_size = 10)
+rsmp_cv3 = rsmp("cv", folds = 3)
+msr_ce = msr("regr.rmse")
+learner.gb = lrn("regr.lightgbm",
+                 boosting = "gbdt",
+                 objective = "regression",
+                 max_depth = to_tune(seq(3, 6, 1)),
+                 num_leaves = to_tune(seq(6,8,1)),
+                 min_data_in_leaf = to_tune(seq(39,45,1)),
+                 min_data_in_bin = to_tune(seq(8,11,1)),
+                 feature_fraction = to_tune(seq(0.3,0.5,0.1)),
+                 feature_fraction_bynode = to_tune(seq(0.1,0.2,0.1)),
+                 learning_rate = to_tune(seq(0.03, 0.04, 0.01)),
+                 num_iterations  = to_tune(seq(39,45,1)), #40
+                 lambda_l1 = to_tune(seq(0.4, 0.5, 0.1)),
+                 lambda_l2 = to_tune(seq(0.30, 0.33, 0.01)),
+                 convert_categorical = TRUE,
+                 force_col_wise = TRUE,
+                 verbose = 1,
+                 num_threads = 5
+)
+
+instance.gb = tune(
+  tuner = tnr_rdgrid_search,
+  task = task,
+  learner = learner.gb,
+  resampling = rsmp_cv3,
+  measures = msr_ce,
+  term_evals = 170,
+  store_models = FALSE
+)
+```
+
+We tried many experiments and found the best hyper parameters that produced the lowest error. In Gradient Boosting modeling we adjusted the hyper parameters such as `max_depth`, `num_leaves`, `min_data_in_leaf`, `feature_fraction` and others.
+Once the best model was found, it obtained an RMSE of 29207.55 on the test data set. The hyper parameters of the best model are shown in the following table.
+
+[best hyper parameter of GB]
+
+Furthermore, the following table shows the importance of the features within the modeling process using Gradient Boosting.
+
+[feature importance of GB]
+
+These results show that in tree-based methods, the Gradient Boosting performance overcomes Random Forest, in other words, the error of Gradient Boosting is approximately 8% lower than the error of Random Forest. In addition, the error of these model are large than the linear models.
+
