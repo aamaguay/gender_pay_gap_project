@@ -92,6 +92,7 @@ mod_wo_interactions <-train(realrinc ~ female + age + prestg10 + childs + armed_
                             data = train, 
                             method = "lm",  
                             trControl = trainControl(method = "cv", number = 3))
+
 summary(mod_wo_interactions)
 rmse <- caret::RMSE(pred = predict(mod_wo_interactions, validation), obs = validation$realrinc)
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25588.5

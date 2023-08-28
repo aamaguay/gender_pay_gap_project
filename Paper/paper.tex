@@ -42,7 +42,7 @@
 \usepackage[backend=biber, maxbibnames = 99, style = apa]{biblatex}
 \setlength\bibitemsep{1.5\itemsep}
 \addbibresource{R_packages.bib}
-\bibliography{references.bib}
+\bibliography{ref.bib}
 \usepackage{color}
 \usepackage{fancyvrb}
 \newcommand{\VerbBar}{|}
@@ -235,17 +235,18 @@
 
   \columnbreak
 
-  Ape Monkey
+ Lea Bergmann
 
   123456
 
-  Ape@Monkey.biz
+lea.bergmann@rwi-essen.de
+lea.bergmann.1j@stud.uni-due.de
 
-  M.Sc. Economics
+PhD Economics
 
-  \nth{5}
+  \nth{1}
 
-  Summer Term 2020
+  Summer Term 2023
 
   \columnbreak
 
@@ -261,19 +262,6 @@
 
   Summer Term 2020
 
-  \columnbreak
-
-  Darth Vader
-
-  543556
-
-  vader@emperialenterprises.com
-
-  M.Sc. Economics
-
-  \nth{3}
-
-  Summer Term 2020
 
   \end{multicols}
 
@@ -349,7 +337,12 @@ outliers well, which are features of our data \autocite{Cutler}. Wages
 were already predicted using random forests by \autocite{Eichinger}.
 They find that using random forests results in better predictions than
 using linear models. Additionally, they show that gender barely effects
-the wage predictions.
+the wage predictions. Likewise, the boosting methods used by
+\autocite{Chakrabarty2018} in salary level classification problems
+showed better performance compared to a traditional algorithm such as
+SVM. Furthermore, \autocite{BonaccoltoToepfer1612} suggests the use of a
+penalization approach for high dimensional problems in his research
+about Gender wage inequality.
 
 Based on the previous literature, we use several regression techniques
 to predict \texttt{realrinc}:
@@ -381,63 +374,82 @@ errors \autocite{Arour}.
 Engineering}\label{data-preparation-feature-engineering}}
 
 The initial data set contains 11 variables, which are described in the
-following: - \textbf{year}: survey year - \textbf{realrinc}:
-respondent's base income (in constant 1986 USD) - \textbf{age}:
-respondent's age in years - \textbf{occ10}: respondent's occupation code
-- \textbf{occrecode}: recode of the occupation code into one of 11 main
-categories - \textbf{prestg10}: respondent's occupational prestige score
-- \textbf{childs}: number of children - \textbf{wrkstat}: work status of
-the respondent (full-time, part-time, temporarily not working,
-unemployed (laid off), etc.) - \textbf{gender}: respondent's gender -
-\textbf{educcat}: respondent's degree level (Less Than High School, High
-School, etc.) - \textbf{maritalcat}: respondent's marital status
-(Married, Widowed, Divorced, etc.)
+following:
+
+\begin{itemize}
+\item
+  \textbf{year}: survey year
+\item
+  \textbf{realrinc}: respondent's base income (in constant 1986 USD)
+\item
+  \textbf{age}: respondent's age in years
+\item
+  \textbf{occ10}: respondent's occupation code
+\item
+  \textbf{occrecode}: recode of the occupation code into one of 11 main
+  categories
+\item
+  \textbf{prestg10}: respondent's occupational prestige score
+\item
+  \textbf{childs}: number of children
+\item
+  \textbf{wrkstat}: work status of the respondent (full-time, part-time,
+  temporarily not working, unemployed (laid off), etc.)
+\item
+  \textbf{gender}: respondent's gender
+\item
+  \textbf{educcat}: respondent's degree level (Less Than High School,
+  High School, etc.)
+\item
+  \textbf{maritalcat}: respondent's marital status (Married, Widowed,
+  Divorced, etc.)
+\end{itemize}
 
 \hypertarget{data-preparation}{%
 \subsection{Data Preparation}\label{data-preparation}}
 
-Before modeling we prepared the data. The initial data set has 54,842
-observations and the outcome variable \texttt{realrinc} has 38.55\% of
-missing values. The imputation of the target variable was discarded to
-avoid generating a bias in the modeling and therefore we decided to
-eliminate these records from the original data set. After this, the data
-set contains 33,702 observations. Furthermore, it was impossible to
-deduce the occupation for some observations (\texttt{occ10\ =\ 9997})
-and these are removed from the data set. At the end, the final data set
-has 33,244 observations, and is used for the modeling process.
+Before modeling we conduct a data preparation process. The initial data
+set has 54,842 observations and the outcome variable \texttt{realrinc}
+has 38.55\% of missing values. The imputation of the target variable is
+discarded to avoid generating a bias in the modeling and therefore we
+decided to eliminate these records from the original data set. After
+this, the dataset contains 33,702 observations. Furthermore, it is
+impossible to deduce the occupation for some observations
+(\texttt{occ10\ =\ 9997}) and we remove these from the data set. At the
+end, the final data set has 33,244 observations, and we use it for the
+modeling process.
 
-This data set still has some missing values for the regressors, e.g.,
-number of children, age, marital status, degree level, and others. Using
-the \texttt{mice} package we conduct the imputation using five
-variables. We impute the features \emph{age, occupational prestige and
-number of children} using the pmm (\texttt{predictive\ mean\ matching})
-method. The polytomous logistic regression method is used for the factor
+This data set still had some missing values for the regressors, e.g.,
+number of children, age, marital status, degree level, and others. We
+use the \texttt{mice} package with five variables for the imputation.
+The features \emph{age, occupational prestige and number of children}
+are imputed using the pmm (\texttt{predictive\ mean\ matching}) method.
+We use the polytomous logistic regression method for the factor
 variables (\emph{education and marital status}). The imputation process
-uses a number of multiple imputations of six. This means that the
-imputation process creates 6 different data sets, and then the
-estimation of the mean and the majority vote is applied to aggregate the
-data sets into a single data set. The mean estimation is applied for
-numeric variables and majority vote for categorical variables..
+generates 6 different data sets. We apply the estimation of the mean and
+the majority vote to aggregate the data sets into a single data set. The
+mean estimation is applied for the numeric variables and majority vote
+for the categorical variables..
 
 \hypertarget{feature-engineering}{%
 \subsection{Feature Engineering}\label{feature-engineering}}
 
-After the imputation process we create interaction variables. First,
-some interaction features are estimated using only the numerical
-variables, and then we transform the numerical variables into
-categorical variables by dividing them into different ranges (e.g.~age
-between 18 and 30, age between 31 and 50, etc). These new categorical
+After the imputation process, we create the interaction variables.
+First, we estimate some interaction features using only the numerical
+variables. Then, we transform the numerical variables into categorical
+variables by dividing them into different ranges (e.g., age between 18
+and 30, age between 31 and 50, etc.). We transform these new categorical
 variables and the initial categorical variables (\emph{marital status,
-education, etc}) are transformed into dummy variables. And finally, we
-estimate the interaction variables with the group of dummy variables
-mentioned above. We validate the inclusion of the interaction of the
-numeric variables using a linear model. The results show that the
-p-values of the parameters for the interactions are less than 0.05.
+education, etc.}) into dummy variables. And finally, the interaction
+variables are estimated with the group of dummy variables mentioned
+above. The inclusion of the interaction of the numeric variables are
+validate using a linear model, and the results show that the p- values
+of the parameters for the interactions are less than 0.05.
 
 \begin{figure}
 \centering
-\includegraphics{includes/reg_table.png}
-\caption{table}
+\includegraphics[width=3.30208in,height=\textheight]{includes/reg_table.png}
+\caption{Linear Model: Inclusion of Interaction Variables}
 \end{figure}
 
 Furthermore, we estimate a correlation matrix using Spearman's rank
@@ -448,29 +460,29 @@ figure.
 \begin{figure}
 \centering
 \includegraphics{includes/corr_matrix.png}
-\caption{matrix\_corr}
+\caption{Correlation Matrix}
 \end{figure}
 
 After the data preparation and feature engineering processes, we
 construct a final data set with 33,244 observations and 421 features.
 Due to the large number of interaction variables, we decided to reduce
 them and use only the interaction between a group of variables
-(\emph{occrecode, educcat and prestg10}). After reduction, the modeling
-process is developed with 100 variables (numerical and interaction
+(\emph{occrecode, educcat and prestg10}). After reduction, we develop
+the modeling process with 100 variables (numerical and interaction
 variables). The following figure shows the overview of the group of
-variables that we estimated and used in the models.
+variables that were estimated and used in the models.
 
 \begin{figure}
 \centering
 \includegraphics{includes/feature_process.png}
-\caption{feature\_process}
+\caption{Feature Engineering}
 \end{figure}
 
 \hypertarget{model-training-and-tuning}{%
 \section{Model Training and Tuning}\label{model-training-and-tuning}}
 
 We use five different regression techniques to predict the individuals'
-wages using the final dataset. We fit every model on our training data
+wages using the final data set. We fit every model on our training data
 using the \texttt{train} function from the \texttt{caret} package. To
 choose the best parameter combination we use cross-validation within all
 train functions.
@@ -484,11 +496,12 @@ interaction variables. This results in an RMSE of 25,506.05.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"realrinc \textasciitilde{}"}\NormalTok{, }\FunctionTok{paste}\NormalTok{(x\_cols\_dummys, }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)))}
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"realrinc \textasciitilde{}"}\NormalTok{, }
+                            \FunctionTok{paste}\NormalTok{(x\_cols\_dummys, }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)))}
 \NormalTok{mod\_full }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula,}
                   \AttributeTok{data =}\NormalTok{ train, }
                   \AttributeTok{method =} \StringTok{"lm"}\NormalTok{,  }
-                  \AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{))}
+                  \AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{, }\AttributeTok{number =} \DecValTok{3}\NormalTok{))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -496,15 +509,20 @@ Given some extreme outliers in the income distribution of our data
 (which is typical for wage data) we follow the economic literature
 \autocite{Ermini} and fit a logistic model to our data, using the log of
 \texttt{realrinc} as our dependent variable. This results in a higher
-RMSE than the linear model (25,909.82).
+RMSE than the linear model (25,909.82). Still, the linear model yields
+predictions of \texttt{realrinc} that are negative, what is implausible.
+Using the log of \texttt{realrinc} only positive predictions are
+generated. Therefore, we prefer using the log for the following
+predictions.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{formula2 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"log\_realrinc \textasciitilde{}"}\NormalTok{, }\FunctionTok{paste}\NormalTok{(x\_cols\_dummys, }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)))}
+\NormalTok{formula2 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"log\_realrinc \textasciitilde{}"}\NormalTok{, }
+                              \FunctionTok{paste}\NormalTok{(x\_cols\_dummys, }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)))}
 \NormalTok{mod\_loginc }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula2,}
                     \AttributeTok{data =}\NormalTok{ train, }
                     \AttributeTok{method =} \StringTok{"lm"}\NormalTok{,  }
-                    \AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{))}
+                    \AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{, }\AttributeTok{number =} \DecValTok{3}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -527,7 +545,7 @@ reduce the estimates' variance which improves the model fit.
 We start with a ridge regression.
 
 \[
-RSS + \lambda \sum^p _{j=1} \beta^2_j 
+y = RSS + \lambda \sum^p _{j=1} \beta^2_j 
 \]
 
 Hence, the coefficient estimates in a ridge regression minimize the sum
@@ -538,13 +556,13 @@ using cross-validation.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{ridge }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train,}
-  \AttributeTok{method =} \StringTok{"glmnet"}\NormalTok{, }\AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{),}
-  \AttributeTok{tuneGrid =} \FunctionTok{expand.grid}\NormalTok{(}\AttributeTok{alpha =} \DecValTok{0}\NormalTok{, }\AttributeTok{lambda =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{500}\NormalTok{, }\DecValTok{1}\NormalTok{))) }
+  \AttributeTok{method =} \StringTok{"glmnet"}\NormalTok{, }\AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{, }\AttributeTok{number =} \DecValTok{3}\NormalTok{),}
+  \AttributeTok{tuneGrid =} \FunctionTok{expand.grid}\NormalTok{(}\AttributeTok{alpha =} \DecValTok{0}\NormalTok{, }\AttributeTok{lambda =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.001}\NormalTok{)))}
 \end{Highlighting}
 \end{Shaded}
 
 Perform a ridge regression to predict real incomes yields an RMSE of
-25,524.85.
+26,062.58.
 
 In contrast to other subset selection methods ridge regression does not
 exclude any variables from the regression model. Hence, the model is
@@ -564,19 +582,18 @@ covariates.
 \begin{Highlighting}[]
 \NormalTok{lasso }\OtherTok{\textless{}{-}} \FunctionTok{train}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train, }
        \AttributeTok{method =} \StringTok{"glmnet"}\NormalTok{, }\AttributeTok{trControl =} \FunctionTok{trainControl}\NormalTok{(}\AttributeTok{method =} \StringTok{"cv"}\NormalTok{), }
-       \AttributeTok{tuneGrid =} \FunctionTok{expand.grid}\NormalTok{(}\AttributeTok{alpha =} \DecValTok{1}\NormalTok{, }\AttributeTok{lambda =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{500}\NormalTok{,}\DecValTok{1}\NormalTok{)))}
+       \AttributeTok{tuneGrid =} \FunctionTok{expand.grid}\NormalTok{(}\AttributeTok{alpha =} \DecValTok{1}\NormalTok{, }\AttributeTok{lambda =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{,}\FloatTok{0.001}\NormalTok{)))}
 \end{Highlighting}
 \end{Shaded}
 
 To perform the lasso regression in \texttt{R} we set \(\alpha\) equal to
 one. The lasso regression yields a lower RMSE than the ridge regression
-(25,504.58 vs.~25,524.85) and even a lower RMSE than the linear
-regression.
+(25,918.25 vs.~26,062.58).
 
 In a final step we use elastic net regularization which is a linear
 combination of ridge and lasso regression. The elastic net
 regularization allows \(\alpha\) to vary between zero and one. This
-results in an RMSE of 25,241.7.
+results in an RMSE of 25,918.81.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -587,5 +604,135 @@ results in an RMSE of 25,241.7.
 \end{Highlighting}
 \end{Shaded}
 
+\hypertarget{random-forest}{%
+\subsection{Random Forest}\label{random-forest}}
+
+According to the literature review, tree-based models perform
+considerably well in range in predicting income ranges (classification
+problems). For this reason, we use the random forest algorithm for
+modeling. This experiment use the income without logarithm
+transformation, the initial features and some interaction variables.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tnr\_rdgrid\_search }\OtherTok{=} \FunctionTok{tnr}\NormalTok{(}\StringTok{"random\_search"}\NormalTok{, }\AttributeTok{batch\_size =} \DecValTok{10}\NormalTok{)}
+\NormalTok{rsmp\_cv3 }\OtherTok{=} \FunctionTok{rsmp}\NormalTok{(}\StringTok{"cv"}\NormalTok{, }\AttributeTok{folds =} \DecValTok{3}\NormalTok{)}
+\NormalTok{msr\_ce }\OtherTok{=} \FunctionTok{msr}\NormalTok{(}\StringTok{"regr.rmse"}\NormalTok{)}
+\NormalTok{learner }\OtherTok{=} \FunctionTok{lrn}\NormalTok{(}\StringTok{"regr.lightgbm"}\NormalTok{,}
+              \AttributeTok{boosting =} \StringTok{"rf"}\NormalTok{,}
+              \AttributeTok{objective =} \StringTok{"regression"}\NormalTok{,}
+              \AttributeTok{max\_depth =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{12}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+              \AttributeTok{num\_leaves =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{270}\NormalTok{,}\DecValTok{280}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+              \AttributeTok{num\_iterations  =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{132}\NormalTok{,}\DecValTok{137}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+              \AttributeTok{min\_data\_in\_leaf =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{70}\NormalTok{,}\DecValTok{85}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+              \AttributeTok{min\_data\_in\_bin =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{10}\NormalTok{,}\DecValTok{15}\NormalTok{, }\DecValTok{1}\NormalTok{)),}
+              \AttributeTok{feature\_fraction\_bynode =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.3}\NormalTok{,}\FloatTok{0.4}\NormalTok{,}\FloatTok{0.1}\NormalTok{)),}
+              \AttributeTok{bagging\_fraction =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.2}\NormalTok{,}\FloatTok{0.3}\NormalTok{,}\FloatTok{0.1}\NormalTok{)),}
+              \AttributeTok{bagging\_freq =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{3}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+              \AttributeTok{feature\_fraction =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.7}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\FloatTok{0.1}\NormalTok{)),}
+              \AttributeTok{convert\_categorical =} \ConstantTok{TRUE}\NormalTok{,}
+              \AttributeTok{force\_col\_wise =} \ConstantTok{TRUE}\NormalTok{,}
+              \AttributeTok{verbose =} \DecValTok{1}\NormalTok{,}
+              \AttributeTok{num\_threads =} \DecValTok{5}
+\NormalTok{)}
+
+\NormalTok{instance.rf }\OtherTok{=} \FunctionTok{tune}\NormalTok{(}
+  \AttributeTok{tuner =}\NormalTok{ tnr\_rdgrid\_search,}
+  \AttributeTok{task =}\NormalTok{ task,}
+  \AttributeTok{learner =}\NormalTok{ learner,}
+  \AttributeTok{resampling =}\NormalTok{ rsmp\_cv3,}
+  \AttributeTok{measures =}\NormalTok{ msr\_ce,}
+  \AttributeTok{term\_evals =} \DecValTok{150}\NormalTok{,}
+  \AttributeTok{store\_models =} \ConstantTok{FALSE}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Due to the number of hyper parameters in random forest, we use the
+\texttt{lightgbm} and \texttt{mlr3} packages to model and tune the hyper
+parameter in a time-optimal way. After many attempts, we found the best
+hyper parameters that produced the lowest error. The hyper parameters
+tuned were \texttt{max\_depth}, \texttt{num\_leaves},
+\texttt{num\_iterations} and others. In addition, we used a random
+search approach in the tuning process with a cross-validation of 3. Once
+we found the model along with the hyper parameters with lowest error in
+the cross-validation, we proceeded to evaluate this model on the test
+data set and obtained a RMSE of 31,745.54. The hyper parameters of the
+best model are shown in the following table.
+
+{[}best hyper parameter of RF{]}
+
+In addition, we can analyze the importance of the features within the
+modeling process using random forest, and these results are shown in the
+following table.
+
+{[}feature importance of RF{]}
+
+\hypertarget{gradient-boosting}{%
+\subsection{Gradient Boosting}\label{gradient-boosting}}
+
+Gradient Boosting also has many hyper parameters like random forest and
+we decided to apply a similar approach to the previous algorithm to find
+the best model with the hyper parameters (random search approach in the
+tuning process with a cross-validation of 3). Furthermore, the
+experiments with Gradient Boosting use the target variable without
+logarithm transformation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tnr\_rdgrid\_search }\OtherTok{=} \FunctionTok{tnr}\NormalTok{(}\StringTok{"random\_search"}\NormalTok{, }\AttributeTok{batch\_size =} \DecValTok{10}\NormalTok{)}
+\NormalTok{rsmp\_cv3 }\OtherTok{=} \FunctionTok{rsmp}\NormalTok{(}\StringTok{"cv"}\NormalTok{, }\AttributeTok{folds =} \DecValTok{3}\NormalTok{)}
+\NormalTok{msr\_ce }\OtherTok{=} \FunctionTok{msr}\NormalTok{(}\StringTok{"regr.rmse"}\NormalTok{)}
+\NormalTok{learner.gb }\OtherTok{=} \FunctionTok{lrn}\NormalTok{(}\StringTok{"regr.lightgbm"}\NormalTok{,}
+                 \AttributeTok{boosting =} \StringTok{"gbdt"}\NormalTok{,}
+                 \AttributeTok{objective =} \StringTok{"regression"}\NormalTok{,}
+                 \AttributeTok{max\_depth =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{1}\NormalTok{)),}
+                 \AttributeTok{num\_leaves =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{6}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+                 \AttributeTok{min\_data\_in\_leaf =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{39}\NormalTok{,}\DecValTok{45}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+                 \AttributeTok{min\_data\_in\_bin =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{8}\NormalTok{,}\DecValTok{11}\NormalTok{,}\DecValTok{1}\NormalTok{)),}
+                 \AttributeTok{feature\_fraction =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.3}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.1}\NormalTok{)),}
+                 \AttributeTok{feature\_fraction\_bynode =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.2}\NormalTok{,}\FloatTok{0.1}\NormalTok{)),}
+                 \AttributeTok{learning\_rate =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.03}\NormalTok{, }\FloatTok{0.04}\NormalTok{, }\FloatTok{0.01}\NormalTok{)),}
+                 \AttributeTok{num\_iterations  =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{39}\NormalTok{,}\DecValTok{45}\NormalTok{,}\DecValTok{1}\NormalTok{)), }\CommentTok{\#40}
+                 \AttributeTok{lambda\_l1 =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.4}\NormalTok{, }\FloatTok{0.5}\NormalTok{, }\FloatTok{0.1}\NormalTok{)),}
+                 \AttributeTok{lambda\_l2 =} \FunctionTok{to\_tune}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.30}\NormalTok{, }\FloatTok{0.33}\NormalTok{, }\FloatTok{0.01}\NormalTok{)),}
+                 \AttributeTok{convert\_categorical =} \ConstantTok{TRUE}\NormalTok{,}
+                 \AttributeTok{force\_col\_wise =} \ConstantTok{TRUE}\NormalTok{,}
+                 \AttributeTok{verbose =} \DecValTok{1}\NormalTok{,}
+                 \AttributeTok{num\_threads =} \DecValTok{5}
+\NormalTok{)}
+
+\NormalTok{instance.gb }\OtherTok{=} \FunctionTok{tune}\NormalTok{(}
+  \AttributeTok{tuner =}\NormalTok{ tnr\_rdgrid\_search,}
+  \AttributeTok{task =}\NormalTok{ task,}
+  \AttributeTok{learner =}\NormalTok{ learner.gb,}
+  \AttributeTok{resampling =}\NormalTok{ rsmp\_cv3,}
+  \AttributeTok{measures =}\NormalTok{ msr\_ce,}
+  \AttributeTok{term\_evals =} \DecValTok{170}\NormalTok{,}
+  \AttributeTok{store\_models =} \ConstantTok{FALSE}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We tried many experiments and found the best hyper parameters that
+produced the lowest error. In Gradient Boosting modeling we adjusted the
+hyper parameters such as \texttt{max\_depth}, \texttt{num\_leaves},
+\texttt{min\_data\_in\_leaf}, \texttt{feature\_fraction} and others.
+Once the best model was found, it obtained an RMSE of 29,207.55 on the
+test dataset. The hyper parameters of the best model are shown in the
+following table.
+
+{[}best hyper parameter of GB{]}
+
+Furthermore, the following table shows the importance of the features
+within the modeling process using Gradient Boosting.
+
+{[}feature importance of GB{]}
+
+These results show that in tree-based methods, the Gradient Boosting
+performance overcomes Random Forest, in other words, the error of
+Gradient Boosting is approximately 8\% lower than the error of Random
+Forest. In addition, the errors of these models are larger than the
+linear models.
 
 \end{document}

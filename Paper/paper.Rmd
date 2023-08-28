@@ -21,7 +21,7 @@ graphics: true
 biblio-title: References
 fontsize: 11pt
 geometry: lmargin=2.5cm,rmargin=2.5cm,tmargin=2.5cm,bmargin=2.5cm
-biblio-files: references.bib
+biblio-files: ref.bib
 classoption: a4paper
 ---
 
@@ -62,22 +62,32 @@ Based on the previous literature, we use several regression techniques to predic
 
 In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%) and a test (30%) data set. We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RMSE) using the validation data. We choose the RMSE as it is more sensitive to large errors [@Arour].
 
-[Write something about cross validation?]
+Furthermore, we use cross validation (CV) to assess the performance of a model and to select appropriate hyperparameters. CV prevents overfitting and helps in model selection.
 
 # Data Preparation & Feature Engineering
 
 The initial data set contains 11 variables, which are described in the following:
 
 -   **year**: survey year
+
 -   **realrinc**: respondent's base income (in constant 1986 USD)
+
 -   **age**: respondent's age in years
+
 -   **occ10**: respondent's occupation code
+
 -   **occrecode**: recode of the occupation code into one of 11 main categories
+
 -   **prestg10**: respondent's occupational prestige score
+
 -   **childs**: number of children
+
 -   **wrkstat**: work status of the respondent (full-time, part-time, temporarily not working, unemployed (laid off), etc.)
+
 -   **gender**: respondent's gender
+
 -   **educcat**: respondent's degree level (Less Than High School, High School, etc.)
+
 -   **maritalcat**: respondent's marital status (Married, Widowed, Divorced, etc.)
 
 ## Data Preparation
@@ -90,15 +100,15 @@ This data set still had some missing values for the regressors, e.g., number of 
 
 After the imputation process, we create the interaction variables. First, we estimate some interaction features using only the numerical variables. Then, we transform the numerical variables into categorical variables by dividing them into different ranges (e.g., age between 18 and 30, age between 31 and 50, etc.). We transform these new categorical variables and the initial categorical variables (*marital status, education, etc.*) into dummy variables. And finally, the interaction variables are estimated with the group of dummy variables mentioned above. The inclusion of the interaction of the numeric variables are validate using a linear model, and the results show that the p- values of the parameters for the interactions are less than 0.05.
 
-![table](includes/reg_table.png){width="317"}
+![Linear Model: Inclusion of Interaction Variables](includes/reg_table.png){width="317"}
 
 Furthermore, we estimate a correlation matrix using Spearman's rank correlation coefficient with some numeric variables in order to support the previous results. The correlation results are shown in the following figure.
 
-![matrix_corr](includes/corr_matrix.png)
+![Correlation Matrix](includes/corr_matrix.png)
 
 After the data preparation and feature engineering processes, we construct a final data set with 33,244 observations and 421 features. Due to the large number of interaction variables, we decided to reduce them and use only the interaction between a group of variables (*occrecode, educcat and prestg10*). After reduction, we develop the modeling process with 100 variables (numerical and interaction variables). The following figure shows the overview of the group of variables that were estimated and used in the models.
 
-![feature_process](includes/feature_process.png)
+![Feature Engineering](includes/feature_process.png)
 
 # Model Training and Tuning
 
@@ -117,7 +127,7 @@ mod_full <- train(formula,
                   trControl = trainControl(method = "cv", number = 3))
 ```
 
-Given some extreme outliers in the income distribution of our data (which is typical for wage data) we follow the economic literature [@Ermini] and fit a logistic model to our data, using the log of `realrinc` as our dependent variable. This results in a higher RMSE than the linear model (25,909.82).
+Given some extreme outliers in the income distribution of our data (which is typical for wage data) we follow the economic literature [@Ermini] and fit a logistic model to our data, using the log of `realrinc` as our dependent variable. This results in a higher RMSE than the linear model (25,909.82). Still, the linear model yields predictions of `realrinc` that are negative, what is implausible. Using the log of `realrinc` only positive predictions are generated. Therefore, we prefer using the log for the following predictions.
 
 ``` r
 formula2 <- as.formula(paste("log_realrinc ~", 
@@ -137,7 +147,7 @@ As the dataset contains many variables (361) and even our selection of dummy var
 We start with a ridge regression.
 
 $$
-RSS + \lambda \sum^p _{j=1} \beta^2_j 
+y = RSS + \lambda \sum^p _{j=1} \beta^2_j 
 $$
 
 Hence, the coefficient estimates in a ridge regression minimize the sum of the residual sum of squares (RSS) and the sum of squared coefficients multiplied with a tuning parameter $\lambda$. We estimate $\lambda$ using cross-validation.
@@ -145,10 +155,10 @@ Hence, the coefficient estimates in a ridge regression minimize the sum of the r
 ``` r
 ridge <- train(formula, data = train,
   method = "glmnet", trControl = trainControl(method = "cv", number = 3),
-  tuneGrid = expand.grid(alpha = 0, lambda = seq(0, 500, 1))) 
+  tuneGrid = expand.grid(alpha = 0, lambda = seq(0,1,0.001)))
 ```
 
-Perform a ridge regression to predict real incomes yields an RMSE of 25,524.85.
+Perform a ridge regression to predict real incomes yields an RMSE of 26,062.58.
 
 In contrast to other subset selection methods ridge regression does not exclude any variables from the regression model. Hence, the model is still fitted on 53 covariates. To overcome this issue we also use a lasso regression.
 
@@ -161,12 +171,12 @@ In contrast to the ridge regression the lasso regression forces some of the coef
 ``` r
 lasso <- train(formula, data = train, 
        method = "glmnet", trControl = trainControl(method = "cv"), 
-       tuneGrid = expand.grid(alpha = 1, lambda = seq(0,500,1)))
+       tuneGrid = expand.grid(alpha = 1, lambda = seq(0,1,0.001)))
 ```
 
-To perform the lasso regression in `R` we set $\alpha$ equal to one. The lasso regression yields a lower RMSE than the ridge regression (25,504.89 vs. 25,524.85) and even a lower RMSE than the linear regression.
+To perform the lasso regression in `R` we set $\alpha$ equal to one. The lasso regression yields a lower RMSE than the ridge regression (25,918.25 vs. 26,062.58).
 
-In a final step we use elastic net regularization which is a linear combination of ridge and lasso regression. The elastic net regularization allows $\alpha$ to vary between zero and one. This results in an RMSE of 25,504.18.
+In a final step we use elastic net regularization which is a linear combination of ridge and lasso regression. The elastic net regularization allows $\alpha$ to vary between zero and one. This results in an RMSE of 25,918.81.
 
 ``` r
 elasticnet <- train(formula, data = train,
@@ -177,7 +187,7 @@ elasticnet <- train(formula, data = train,
 
 ## Random Forest
 
-According to the literature review, tree-based models perform considerably well in range in predicting income ranges (classification problems). For this reason, the Random forest algorithm is used for modeling. This experiment use the income without logarithm transformation, the initial features and some interaction variables.
+According to the literature review, tree-based models perform considerably well in range in predicting income ranges (classification problems). For this reason, we use the random forest algorithm for modeling. This experiment use the income without logarithm transformation, the initial features and some interaction variables.
 
 ``` r
 tnr_rdgrid_search = tnr("random_search", batch_size = 10)
@@ -212,19 +222,17 @@ instance.rf = tune(
 )
 ```
 
-Due to the number of hyper parameters in Random Forest, we use the `lightgbm` and `mlr3` packages to model and tune the hyper parameter in a time-optimal way. After many attempts, we found the best hyper parameters that produced the lowest error. The hyper parameters tuned were `max_depth`, `num_leaves`, `num_iterations` and others. In addition, we used a random search approach in the tuning process with a cross-validation of 3.
-Once we found the model along with the hyper parameters with lowest error in the cross-validation, we proceeded to evaluate this model on the test data set and obtained a RMSE of 31745.54. The hyper parameters of the best model are shown in the following table.
+Due to the number of hyper parameters in random forest, we use the `lightgbm` and `mlr3` packages to model and tune the hyper parameter in a time-optimal way. After many attempts, we found the best hyper parameters that produced the lowest error. The hyper parameters tuned were `max_depth`, `num_leaves`, `num_iterations` and others. In addition, we used a random search approach in the tuning process with a cross-validation of 3. Once we found the model along with the hyper parameters with lowest error in the cross-validation, we proceeded to evaluate this model on the test data set and obtained a RMSE of 31,745.54. The hyper parameters of the best model are shown in the following table.
 
 [best hyper parameter of RF]
 
-In addition, we can analyze the importance of the features within the modeling process using Random Forest, and these results are shown in the following table.
+In addition, we can analyze the importance of the features within the modeling process using random forest, and these results are shown in the following table.
 
 [feature importance of RF]
 
-
 ## Gradient Boosting
 
-Gradient Boosting also has many hyper parameters like Random Forest and we decided to apply a similar approach to the previous algorithm to find the best model with the hyper parameters (random search approach in the tuning process with a cross-validation of 3). Furthermore, the experiments with Gradient Boosting used the target variable without logarithm transformation.
+Gradient Boosting also has many hyper parameters like random forest and we decided to apply a similar approach to the previous algorithm to find the best model with the hyper parameters (random search approach in the tuning process with a cross-validation of 3). Furthermore, the experiments with Gradient Boosting use the target variable without logarithm transformation.
 
 ``` r
 tnr_rdgrid_search = tnr("random_search", batch_size = 10)
@@ -260,8 +268,7 @@ instance.gb = tune(
 )
 ```
 
-We tried many experiments and found the best hyper parameters that produced the lowest error. In Gradient Boosting modeling we adjusted the hyper parameters such as `max_depth`, `num_leaves`, `min_data_in_leaf`, `feature_fraction` and others.
-Once the best model was found, it obtained an RMSE of 29207.55 on the test data set. The hyper parameters of the best model are shown in the following table.
+We tried many experiments and found the best hyper parameters that produced the lowest error. In Gradient Boosting modeling we adjusted the hyper parameters such as `max_depth`, `num_leaves`, `min_data_in_leaf`, `feature_fraction` and others. Once the best model was found, it obtained an RMSE of 29,207.55 on the test dataset. The hyper parameters of the best model are shown in the following table.
 
 [best hyper parameter of GB]
 
@@ -269,5 +276,4 @@ Furthermore, the following table shows the importance of the features within the
 
 [feature importance of GB]
 
-These results show that in tree-based methods, the Gradient Boosting performance overcomes Random Forest, in other words, the error of Gradient Boosting is approximately 8% lower than the error of Random Forest. In addition, the error of these model are large than the linear models.
-
+These results show that in tree-based methods, the Gradient Boosting performance overcomes Random Forest, in other words, the error of Gradient Boosting is approximately 8% lower than the error of Random Forest. In addition, the errors of these models are larger than the linear models.
