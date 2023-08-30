@@ -367,7 +367,9 @@ the train data and evaluate the root mean squared error (RMSE) using the
 validation data. We choose the RMSE as it is more sensitive to large
 errors \autocite{Arour}.
 
-{[}Write something about cross validation?{]}
+Furthermore, we use cross validation (CV) to assess the performance of a
+model and to select appropriate hyperparameters. CV prevents overfitting
+and helps in model selection.
 
 \hypertarget{data-preparation-feature-engineering}{%
 \section{Data Preparation \& Feature
@@ -561,7 +563,7 @@ using cross-validation.
 \end{Highlighting}
 \end{Shaded}
 
-Perform a ridge regression to predict real incomes yields an RMSE of
+Performing a ridge regression to predict real incomes yields an RMSE of
 26,062.58.
 
 In contrast to other subset selection methods ridge regression does not
@@ -734,5 +736,30 @@ performance overcomes Random Forest, in other words, the error of
 Gradient Boosting is approximately 8\% lower than the error of Random
 Forest. In addition, the errors of these models are larger than the
 linear models.
+
+\hypertarget{evaluation}{%
+\section{Evaluation}\label{evaluation}}
+
+The aim of this paper is to predict individuals' wages. In order to
+evaluate the best prediction method we use the RMSE. The following table
+demonstrates the RMSE for each used method: \medskip
+
+\begin{tabular}{l c} 
+\textbf{Method} & \textbf{RMSE} \\ 
+Linear Regression & 25,506.05 \\ 
+Logistic Regression & 25,909.82 \\ 
+Ridge & 26,062.58 \\ 
+Lasso & 25,918.25 \\
+Elastic Net & 25,918.81 \\ 
+Random Forest & 31,745.54 \\ 
+Gradient Boosting & 29,207.55 \\ 
+\end{tabular}
+
+\medskip
+
+Conclusively, the linear regression yields the lowest RMSE and thus
+appears to be the best prediction method. Still, it delivers negative
+predictions of the wage. Therefore, we prefer the logistic regression as
+the best prediction method.
 
 \end{document}

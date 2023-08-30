@@ -158,7 +158,7 @@ ridge <- train(formula, data = train,
   tuneGrid = expand.grid(alpha = 0, lambda = seq(0,1,0.001)))
 ```
 
-Perform a ridge regression to predict real incomes yields an RMSE of 26,062.58.
+Performing a ridge regression to predict real incomes yields an RMSE of 26,062.58.
 
 In contrast to other subset selection methods ridge regression does not exclude any variables from the regression model. Hence, the model is still fitted on 53 covariates. To overcome this issue we also use a lasso regression.
 
@@ -277,3 +277,21 @@ Furthermore, the following table shows the importance of the features within the
 [feature importance of GB]
 
 These results show that in tree-based methods, the Gradient Boosting performance overcomes Random Forest, in other words, the error of Gradient Boosting is approximately 8% lower than the error of Random Forest. In addition, the errors of these models are larger than the linear models.
+
+# Evaluation 
+
+The aim of this paper is to predict individuals' wages. In order to evaluate the best prediction method we use the RMSE. The following table demonstrates the RMSE for each used method: \medskip
+
+\begin{tabular}{l c} 
+\textbf{Method} & \textbf{RMSE} \\ 
+Linear Regression & 25,506.05 \\ 
+Logistic Regression & 25,909.82 \\ 
+Ridge & 26,062.58 \\ 
+Lasso & 25,918.25 \\
+Elastic Net & 25,918.81 \\ 
+Random Forest & 31,745.54 \\ 
+Gradient Boosting & 29,207.55 \\ 
+\end{tabular}
+
+\medskip
+Conclusively, the linear regression yields the lowest RMSE and thus appears to be the best prediction method. Still, it delivers negative predictions of the wage. Therefore, we prefer the logistic regression as the best prediction method. 
