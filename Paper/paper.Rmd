@@ -60,6 +60,8 @@ Based on the previous literature, we use several regression techniques to predic
 
 -   Random Forest
 
+-   Generalized Additive Model
+
 In order to evaluate which of the regression techniques predicts `realrinc` the best we split the data set into a train (70%) and a test (30%) data set. We fit the aforementioned regression models on the train data and evaluate the root mean squared error (RMSE) using the validation data. We choose the RMSE as it is more sensitive to large errors [@Arour].
 
 Furthermore, we use cross validation (CV) to assess the performance of a model and to select appropriate hyperparameters. CV prevents overfitting and helps in model selection.
@@ -92,21 +94,25 @@ The initial data set contains 11 variables, which are described in the following
 
 ## Data Preparation
 
-Before modeling we conduct a data preparation process. The initial data set has 54,842 observations and the outcome variable `realrinc` has 38.55% of missing values. The imputation of the target variable is discarded to avoid generating a bias in the modeling and therefore we decided to eliminate these records from the original data set. After this, the dataset contains 33,702 observations. Furthermore, it is impossible to deduce the occupation for some observations (`occ10 = 9997`) and we remove these from the data set. At the end, the final data set has 33,244 observations, and we use it for the modeling process.
+Before modeling we conduct a data preparation process. The initial data set has 54,842 observations and the outcome variable `realrinc` has 38.55% of missing values. The imputation of the target variable is discarded to avoid generating a bias in the modeling and therefore we decided to eliminate these records from the original data set. After this, the data set contains 33,702 observations. Furthermore, it is impossible to deduce the occupation for some observations (`occ10 = 9997`) and we remove these from the data set. Finally, the data set has 33,244 observations and we use it for the modeling process.
 
-This data set still had some missing values for the regressors, e.g., number of children, age, marital status, degree level, and others. We use the `mice` package with five variables for the imputation. The features *age, occupational prestige and number of children* are imputed using the pmm (`predictive mean matching`) method. We use the polytomous logistic regression method for the factor variables (*education and marital status*). The imputation process generates 6 different data sets. We apply the estimation of the mean and the majority vote to aggregate the data sets into a single data set. The mean estimation is applied for the numeric variables and majority vote for the categorical variables..
+This data set still had some missing values for the regressors, e.g., number of children, age, marital status, degree level, and others. So, we use the `mice` package with five variables for the imputation process. The features *age, occupational prestige and number of children* are imputed using the predictive mean matching (pmm) method, and we use the polytomous logistic regression method for the factor variables (*education and marital status*). Due to we use a value of 6 in the `m` parameter of the `mice` function, the imputation process generates 6 different data sets. This parameter refers to the number of imputed data sets. After this, we apply the calculation of the mean and the majority vote to aggregate the data sets into one. Mean estimation is applied for numerical variables and majority voting for categorical variables
 
 ## Feature Engineering
 
-After the imputation process, we create the interaction variables. First, we estimate some interaction features using only the numerical variables. Then, we transform the numerical variables into categorical variables by dividing them into different ranges (e.g., age between 18 and 30, age between 31 and 50, etc.). We transform these new categorical variables and the initial categorical variables (*marital status, education, etc.*) into dummy variables. And finally, the interaction variables are estimated with the group of dummy variables mentioned above. The inclusion of the interaction of the numeric variables are validate using a linear model, and the results show that the p- values of the parameters for the interactions are less than 0.05.
+After the imputation process, we created some interaction variables. First, we estimated some interaction features using only the numerical variables. Then, we transformed the numerical variables (*age, child and prestg*) into categorical variables by separating them into ranges. The ranges created of these variables were: *age between 18 and 30, age between 31 and 50, and age greater than 50, child between 0 and 2, child between 3 and 5, child greater than 5; and prestg10 between 16 and 30, prestg10 between 31 and 50, prestg10 greater than 50*. After this, we transform these new categorical variables and the initial categorical variables (*marital status, education, etc.*) into dummy variables. Finally, the interaction variables are estimated with the group of dummy variables mentioned above (the interaction consists of the multiplication between 2 dummy variables). The inclusion of the interaction of the numeric variables are validate using a linear model, and the results show that the p-values of the parameters for the interactions are less than 0.05.
 
 ![Linear Model: Inclusion of Interaction Variables](includes/reg_table.png){width="317"}
 
-Furthermore, we estimate a correlation matrix using Spearman's rank correlation coefficient with some numeric variables in order to support the previous results. The correlation results are shown in the following figure.
+Furthermore, we estimate a correlation matrix using Spearman's rank correlation coefficient with some numeric variables in order to support the previous results. The correlation results are exposed in the figure below, and show that *prestg10*, *age* and *interaction between age and prest10* have the highest positive correlation with *realinc*, meanwhile the dummy variable *female* has a moderate negative correlation with the target variable.
 
 ![Correlation Matrix](includes/corr_matrix.png)
 
-After the data preparation and feature engineering processes, we construct a final data set with 33,244 observations and 421 features. Due to the large number of interaction variables, we decided to reduce them and use only the interaction between a group of variables (*occrecode, educcat and prestg10*). After reduction, we develop the modeling process with 100 variables (numerical and interaction variables). The following figure shows the overview of the group of variables that were estimated and used in the models.
+Due to the correlation assesses the linear relationship between two variables and it only uses numerical features, we decided to estimate the Predictive Power Score (PPS). It focuses on these limitations and allows us to have a predictive power of a regressor on a target variable. This measure is a normalized metric and its values are between 0 (no predictive power) and 1 (perfect predictive power). The PPS is calculated by comparing the performance of a model that uses a regressor `x` to predict target variable `y` versus the performance of a base model (naive). When the target variable is a numerical feature it is common to use a Decision Tree Regressor to predict `y` based on `x`, while in categorical cases a Decision Tree Classifier is used. On the other hand, base models are often defined as mean prediction or random or modal prediction for regression and classification problems, respectively. The PPS results are presented in the figure below, and show that *prestg10*, *wrkstat*, *educcat* and *occrecode* have the highest predictive power over *realinc* relative to the other features. These results help and provide some insights in the data exploration process, but we must beware of the limitations of this approach.
+
+![PPS Results](includes/pps.png)
+
+After the data preparation and feature engineering processes, we have a final data set with 33,244 observations and 421 features. Due to the large number of interaction variables, we decided to reduce them and use only the interaction between a group of variables (*occrecode*, *educcat* and categorical variable of *prestg10*). After this, we develop the modeling process with 100 variables (numerical and interaction variables). The following figure shows the overview of the group of variables that were estimated and used in the models.
 
 ![Feature Engineering](includes/feature_process.png)
 
@@ -187,7 +193,9 @@ elasticnet <- train(formula, data = train,
 
 ## Random Forest
 
-According to the literature review, tree-based models perform considerably well in range in predicting income ranges (classification problems). For this reason, we use the random forest algorithm for modeling. This experiment use the income without logarithm transformation, the initial features and some interaction variables.
+
+According to the literature review, tree-based models perform considerably well in predicting income ranges (classification problems) [@Chakrabarty2018]. For this reason, we use the random forest algorithm for modeling. In this experiment, income without logarithm transformation, initial variables and some interaction variables are used.
+Due to the amount of hyperparameters in random forest, we use the `lightgbm` and `mlr3` packages to model and tune the hyper parameter in a time-optimal way. After many attempts, we found the best hyper parameters that produced the lowest error. The hyperparameters tuned were `max_depth`, `num_leaves`, `num_iterations`, etc, and the search space of them is showed below. In addition, we used a random search approach in the tuning process with a cross-validation of 3 folds.
 
 ``` r
 tnr_rdgrid_search = tnr("random_search", batch_size = 10)
@@ -217,22 +225,50 @@ instance.rf = tune(
   learner = learner,
   resampling = rsmp_cv3,
   measures = msr_ce,
-  term_evals = 150,
+  term_evals = 300,
   store_models = FALSE
 )
 ```
 
-Due to the number of hyper parameters in random forest, we use the `lightgbm` and `mlr3` packages to model and tune the hyper parameter in a time-optimal way. After many attempts, we found the best hyper parameters that produced the lowest error. The hyper parameters tuned were `max_depth`, `num_leaves`, `num_iterations` and others. In addition, we used a random search approach in the tuning process with a cross-validation of 3. Once we found the model along with the hyper parameters with lowest error in the cross-validation, we proceeded to evaluate this model on the test data set and obtained a RMSE of 31,745.54. The hyper parameters of the best model are shown in the following table.
+Once we found the model along with the hyperparameters with lowest error in the cross-validation, we proceeded to evaluate this model on the test dataset and obtained a RMSE of 31,745.54. The hyperparameters of the best model are shown in the following figure.
 
-[best hyper parameter of RF]
+![Best hyperparameters for Random Forest](includes/RF_hyper.png)
 
-In addition, we can analyze the importance of the features within the modeling process using random forest, and these results are shown in the following table.
+In addition, we can analyze the features importance within the modeling process using random forest, and these results are exposed in the figure below.
 
-[feature importance of RF]
+![Top 20 of Features Importance for Random Forest](includes/RF_importance.png)
+
+Unlike the linear models presented previously, random forest does not predict negative values when logarithmic transformation is not used. We carry out an experiment with a random forest but using the logarithmic transformation in the target variable and keeping the same configuration (CV of 3 folds and random search approach in the tuning process). 
+
+```r
+learner.wlog = lrn("regr.lightgbm",
+              boosting = "rf",
+              objective = "regression",
+              max_depth = to_tune(seq(7,12,1)),
+              num_leaves = to_tune(seq(120,140,1)),
+              max_bin = to_tune(seq(45,60,1)),
+              num_iterations  = to_tune(seq(50,90,1)),
+              min_data_in_leaf = to_tune(seq(20,35,1)), 
+              min_data_in_bin = to_tune(seq(35,50, 1)),
+              feature_fraction_bynode = to_tune(seq(0.4,0.7,0.1)),
+              bagging_fraction = to_tune(seq(0.6,0.9,0.1)),
+              bagging_freq = to_tune(seq(3,12,1)),
+              feature_fraction = to_tune(seq(0.8,0.9,0.1)),
+              convert_categorical = TRUE,
+              force_col_wise = TRUE,
+              verbose = 1,
+              num_threads = 5,
+              seed = 123
+)
+
+```
+
+The best model using the logarithmic transformation had different hyperparameters relative to the previous experiment and obtained an RMSE of 34,293.33 on the test dataset. This result shows that the error of this model is greater than the best model without the transformation (31,745.54).
+
 
 ## Gradient Boosting
 
-Gradient Boosting also has many hyper parameters like random forest and we decided to apply a similar approach to the previous algorithm to find the best model with the hyper parameters (random search approach in the tuning process with a cross-validation of 3). Furthermore, the experiments with Gradient Boosting use the target variable without logarithm transformation.
+Gradient Boosting also has a similar amount of hyperparameters as random forest and we decided to keep a similar configuration as the previous algorithm to find the best model with the hyperparameters (random search approach in the tuning process with 3-fold cross-validation). This first experiment with Gradient Boosting uses the target variable without logarithmic transformation.
 
 ``` r
 tnr_rdgrid_search = tnr("random_search", batch_size = 10)
@@ -248,7 +284,7 @@ learner.gb = lrn("regr.lightgbm",
                  feature_fraction = to_tune(seq(0.3,0.5,0.1)),
                  feature_fraction_bynode = to_tune(seq(0.1,0.2,0.1)),
                  learning_rate = to_tune(seq(0.03, 0.04, 0.01)),
-                 num_iterations  = to_tune(seq(39,45,1)), #40
+                 num_iterations  = to_tune(seq(39,45,1)),
                  lambda_l1 = to_tune(seq(0.4, 0.5, 0.1)),
                  lambda_l2 = to_tune(seq(0.30, 0.33, 0.01)),
                  convert_categorical = TRUE,
@@ -263,20 +299,80 @@ instance.gb = tune(
   learner = learner.gb,
   resampling = rsmp_cv3,
   measures = msr_ce,
-  term_evals = 170,
+  term_evals = 300,
   store_models = FALSE
 )
 ```
 
-We tried many experiments and found the best hyper parameters that produced the lowest error. In Gradient Boosting modeling we adjusted the hyper parameters such as `max_depth`, `num_leaves`, `min_data_in_leaf`, `feature_fraction` and others. Once the best model was found, it obtained an RMSE of 29,207.55 on the test dataset. The hyper parameters of the best model are shown in the following table.
+We tried many combinations of hyperparameters and found the best model that produced the least error. In Gradient Boosting we adjusted some hyperparameters such as `max_depth`, `num_leaves`, `min_data_in_leaf`, `feature_fraction` and others. Once the best model was found, it was evaluated on the test data set and an RMSE of 29,207.55 was obtained. The hyperparameters of the best model are shown in the following table.
 
-[best hyper parameter of GB]
+![Best hyperparameters for Gradient Boosting](includes/GB_hyper.png)
 
-Furthermore, the following table shows the importance of the features within the modeling process using Gradient Boosting.
+Gradient Boosting also provides information on the importance of features during the modeling process in this experiment. The following figure shows the 20 most important variables according to the Gini metric.
 
-[feature importance of GB]
+![Top 20 of Features Importance for Gradient Boosting](includes/GB_importance.png)
 
-These results show that in tree-based methods, the Gradient Boosting performance overcomes Random Forest, in other words, the error of Gradient Boosting is approximately 8% lower than the error of Random Forest. In addition, the errors of these models are larger than the linear models.
+Furthermore, we carried out an additional experiment with gradient boosting using the logarithm transformation on the target variable.
+
+```r
+learner.gb.wlog = lrn("regr.lightgbm",
+                 boosting = "gbdt",
+                 objective = "regression",
+                 max_depth = to_tune(seq(5, 12, 1)),
+                 max_bin = to_tune(seq(35,60,1)), 
+                 num_leaves = to_tune(seq(19,30,1)),
+                 min_data_in_leaf = to_tune(seq(30,50,1)),
+                 min_data_in_bin = to_tune(seq(20,45,1)),
+                 feature_fraction = to_tune(seq(0.3,0.8,0.1)),
+                 feature_fraction_bynode = to_tune(seq(0.7,0.9,0.1)),
+                 learning_rate = to_tune(seq(0.01, 0.1, 0.01)), 
+                 num_iterations  = to_tune(seq(60,80,1)), 
+                 lambda_l1 = to_tune(seq(0.01, 0.1, 0.01)),
+                 lambda_l2 = to_tune(seq(0.3, 0.45, 0.01)),
+                 convert_categorical = TRUE,
+                 force_col_wise = TRUE,
+                 verbose = 1,
+                 num_threads = 5,
+                 seed = 123
+)
+
+
+```
+
+The best model using the logarithmic transformation had a RMSE of 34,385.47 on the test dataset. This result shows that the error of this model is greater relative to the best model without the transformation (29,207.55). These results show that in tree-based methods, Gradient Boosting has a dominant performance over Random Forest. In other words, the error of Gradient Boosting is about 8% smaller than the error of Random Forest when the logarithmic transformation is not used, but the errors of these models are larger than those of the linear models.
+
+## Generalized Additive Model
+
+Generalized additive model (GAM) could be considered the next step of the linear model because it allows combining nonlinear functional forms of the features along with the linear part. This approach is based on relating the nonlinear predictors with a link function $g(.)$ of the expected values $E(y)$, and the following formulas offer more details about this approach.
+
+$$
+
+y \sim \text{ExpoFam}(\mu, \text{etc})\\
+E(y) = \mu \\
+g(\mu) = b_0 + f(x_1) + f(x_2) + \dots + f(x_p)
+
+$$
+
+The main difference with Generalized Lineal Models (GLM) is that this approach allows linear features to aggregate smooth functions $f(.)$ of the required variables and thus establish nonlinear relationships between regressors and the dependent variable.
+This models uses the `gam` and `mlr3` packages to model for the modeling. The adjusted hyperparameter was `gamma` and is responsible for producing a smoother term, and a additional penalization on the smooth term was aggregated with the parameter `select`. In addition, we used a 3-fold cross-validation in the training stage for this algorithm. This experiment uses the logarithmic transformation of the target variable, the interaction variables, smooth terms for the features *age* and *prestg10* with cubic regression splines `cr` and a value of 9 for the knots `k` (number of sections into which a feature is divided), and the smooth tensor product for the variables *age*, *prestg10* and *child* uses a thin-plate regression spline `tp` and a knot value of 1. The last smooth term is considered as the interaction between two features to predict the target variables.
+
+```r
+form.str.gam <- paste("log_realrinc ~ s(age, bs = 'cr', k = 9) + s(prestg10, bs = 'cr', k=9) + 
+                        ti(age,prestg10) + ti(age,childs) +",
+                       paste( x_cols_dummys, collapse = " + ") )
+form.format.gam <- as.formula(form.str.gam)
+learner.gam.wlog.smooth.tensor = lrn("regr.gam",
+                                     family = 'gaussian',
+                                     select = TRUE,
+                                     gamma = to_tune(seq(1,3,0.5)),
+                                     formula = form.format.gam
+)
+```
+
+The best model obtained a RMSE of 25,856.76 on the test dataset. This result shows that the error of this model is slightly lower in relation to the linear model that also uses the logarithmic transformation (25,909.82). In other words, it is 0.20% better than the initial linear model. The figure below exposes the approximate significance of the smooth terms, and the results show that all the smooth terms used in the model have a p-value of less than 0.01.
+
+![Approximate significance of smooth terms](includes/aprox_smooth.png)
+
 
 # Evaluation 
 
@@ -291,6 +387,7 @@ Lasso & 25,918.25 \\
 Elastic Net & 25,918.81 \\ 
 Random Forest & 31,745.54 \\ 
 Gradient Boosting & 29,207.55 \\ 
+Generalized Additive Model & 25,856.76 \\
 \end{tabular}
 
 \medskip
