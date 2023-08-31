@@ -83,7 +83,6 @@ lasso <- train(formula, data = train,
                 tuneGrid = expand.grid(alpha = 1, lambda = seq(0,1,0.001)))
 caret::RMSE(pred = exp(predict(lasso, validation)), obs = validation$realrinc) #25918.25
 
-
 #Ridge
 set.seed(123)
 ridge <- train(formula, data = train,
