@@ -314,36 +314,37 @@ Ph.D. Economics
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-In this paper we predict individuals' wages using data from the General
-Social Survey (GSS, 1974-2018). The variable of interest is
+In this paper we predict individuals' incomes using data from the
+General Social Survey (GSS, 1974-2018). The variable of interest is
 \texttt{realrinc} which varies between 227\$ and
-480,145\$\footnote{In constant 1986 USD.}. Hence, we can use regression
-techniques to predict individuals' wages. Additionally, we can consider
-whether \texttt{realrinc} varies by gender and if so, how much.
+480,145\$\footnote{In constant 1986 USD.}. Hence, we can employ
+regression techniques to predict individuals' incomes. Additionally, we
+can consider whether \texttt{realrinc} varies by gender and if so, how
+much.
 
 The data from the GSS allow us to consider various control variables
 such as gender, age, education, occupation, number of children and
 marital status.
 
-The prediction of individuals' wages has been an issue in previous
+The prediction of individuals' incomes has been an issue in previous
 literature. As wages are relevant to companies they want to know how to
 predict wages \autocite{Chakraborti}. Some papers make use of
-classification techniques to predict wages \autocite{Chakraborti}. As we
-have numeric values of real wages and not a categorical variable we do
-not make use of classification techniques but prefer linear regression
-techniques such as OLS and Lasso regressions as well as random forests.
-We prefer these techniques as they handle categorical variables and
-outliers well, which are features of our data \autocite{Cutler}. Wages
-were already predicted using random forests by \autocite{Eichinger}.
-They find that using random forests results in better predictions than
-using linear models. Additionally, they show that gender barely effects
-the wage predictions. Likewise, the boosting methods used by
-\autocite{Chakrabarty2018} in salary level classification problems
-showed better performance compared to a traditional algorithm such as
-support vector machines (SVM). Furthermore,
-\textcite{BonaccoltoToepfer1612} suggest the use of a penalization
-approach for high dimensional problems in his research about gender wage
-inequality.
+classification techniques to predict wages \autocite{Chakraborti}. Since
+we have numeric values representing real wages and not a categorical
+variable we do not make use of classification techniques but prefer
+linear regression techniques such as OLS and Lasso regressions as well
+as random forests. We prefer these techniques as they handle categorical
+variables and outliers well, which are features of our data
+\autocite{Cutler}. Wages were already predicted using random forests by
+\autocite{Eichinger}. They find that using random forests results in
+better predictions than using linear models. Additionally, they show
+that gender barely effects the wage predictions. Likewise, the boosting
+methods used by \autocite{Chakrabarty2018} in salary level
+classification problems showed better performance compared to a
+traditional algorithm such as support vector machines (SVM).
+Furthermore, \textcite{BonaccoltoToepfer1612} suggest the use of a
+penalization approach for high dimensional problems in his research
+about gender wage inequality.
 
 Based on the previous literature, we use several regression techniques
 to predict \texttt{realrinc}:
@@ -431,7 +432,7 @@ children} are imputed using the predictive mean matching (pmm) method,
 and we use the polytomous logistic regression method for the factor
 variables (\emph{education and marital status}). As we use a value of 6
 in the \texttt{m} parameter of the \texttt{mice} function, the
-imputation process generates 6 different data sets. This parameter
+imputation process generates six different data sets. This parameter
 refers to the number of imputed data sets. After this, we apply the
 calculation of the mean and the majority vote to aggregate the data sets
 into one. Mean estimation is applied for numerical variables and
@@ -489,13 +490,13 @@ of a base model (naive). When the target variable is a numerical feature
 it is common to use a Decision Tree Regressor to predict \texttt{y}
 based on \texttt{x}, while in categorical cases a Decision Tree
 Classifier is used. On the other hand, base models are often defined as
-mean prediction or random or modal prediction for regression and
-classification problems, respectively. The PPS results are presented in
-figure 3, and show that \texttt{prestg10}, \texttt{wrkstat},
-\texttt{educcat} and \texttt{occrecode} have the highest predictive
-power of \texttt{realrinc} relative to the other features. These results
-provide some insights in the data exploration process, but we must
-beware of the limitations of this approach.
+mean, random or modal prediction for regression and classification
+problems, respectively. The PPS results are presented in figure 3, and
+show that \texttt{prestg10}, \texttt{wrkstat}, \texttt{educcat} and
+\texttt{occrecode} have the highest predictive power of
+\texttt{realrinc} relative to the other features. These results provide
+some insights in the data exploration process, but we must beware of the
+limitations of this approach.
 
 \begin{figure}
 \centering
@@ -506,7 +507,7 @@ beware of the limitations of this approach.
 After the data preparation and feature engineering processes, we have a
 final data set with 33,244 observations and 421 features. Due to the
 large number of interaction variables, we reduce them and use only the
-interaction between a group of variables (\texttt{occrecode},
+interactions among a selected group of variables (\texttt{occrecode},
 \texttt{educcat} and categorical variable of \texttt{prestg10}). After
 this, we develop the modeling process with 100 variables (numerical and
 interaction variables). Figure 4 shows the overview of the group of
@@ -848,7 +849,7 @@ The best model using the logarithmic transformation has an RMSE of
 34,385.47 on the test data set. Thus, the error of this model is greater
 relative to the best model without the transformation (29,207.55). These
 results show that in tree-based methods, Gradient Boosting has a
-dominant performance over Random Forest. In other words, the error of
+superior performance over Random Forest. In other words, the error of
 Gradient Boosting is about 8\% smaller than the error of Random Forest
 when the logarithmic transformation is not used. Nevertheless, the
 errors of these models are larger than those of the linear models.
@@ -907,10 +908,10 @@ predict the target variables.
 The best model obtaines an RMSE of 25,856.76 on the test data set. Thus,
 the error of this model is slightly lower in relation to the linear
 model that also uses the logarithmic transformation (25,909.82). In
-other words, it is 0.20\% better than the initial linear model. Figure 9
-exposes the approximate significance of the smooth terms, and the
-results show that all the smooth terms used in the model have a p-value
-of less than 0.01.
+other words, it performs 0.20\% better than the initial linear model.
+Figure 9 exposes the approximate significance of the smooth terms, and
+the results show that all the smooth terms used in the model have a
+p-value of less than 0.01.
 
 \begin{figure}
 \includegraphics[width=0.8\linewidth]{includes/aprox_smooth} \caption{Approximate Significance of Smooth Terms}\label{fig:unnamed-chunk-3}

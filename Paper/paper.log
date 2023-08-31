@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.8.31)  31 AUG 2023 12:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.8.31)  31 AUG 2023 13:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -994,23 +994,23 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <9> on input line 320.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 320.
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 353.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 354.
 (c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.386   \textbf
+l.387   \textbf
                {year}: survey year [1
 
 {c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
-Underfull \hbox (badness 1728) in paragraph at lines 443--458
+Underfull \hbox (badness 1728) in paragraph at lines 444--459
 \T1/lmtt/m/n/10.95 50\T1/lmr/m/n/10.95 , \T1/lmtt/m/n/10.95 age greater than 50; childs between 0 and 2, childs between 3 and 5, childs
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 443--458
+Underfull \hbox (badness 10000) in paragraph at lines 444--459
 \T1/lmtt/m/n/10.95 more than 5; prestg10 between 16 and 30, prestg10 between 31 and 50, prestg10
  []
 
@@ -1018,65 +1018,65 @@ Underfull \hbox (badness 10000) in paragraph at lines 443--458
 <includes/reg_table.png, id=152, 501.875pt x 728.7225pt>
 File: includes/reg_table.png Graphic file (type png)
 <use includes/reg_table.png>
-Package pdftex.def Info: includes/reg_table.png  used on input line 461.
+Package pdftex.def Info: includes/reg_table.png  used on input line 462.
 (pdftex.def)             Requested size: 238.64581pt x 346.51372pt.
 <includes/corr_matrix.png, id=153, 682.55pt x 512.91624pt>
 File: includes/corr_matrix.png Graphic file (type png)
 <use includes/corr_matrix.png>
-Package pdftex.def Info: includes/corr_matrix.png  used on input line 476.
+Package pdftex.def Info: includes/corr_matrix.png  used on input line 477.
 (pdftex.def)             Requested size: 455.25441pt x 342.11029pt.
 [3 <./includes/reg_table.png>]
 <includes/pps.png, id=159, 1006.7379pt x 657.15279pt>
 File: includes/pps.png Graphic file (type png)
 <use includes/pps.png>
-Package pdftex.def Info: includes/pps.png  used on input line 502.
+Package pdftex.def Info: includes/pps.png  used on input line 503.
 (pdftex.def)             Requested size: 455.23993pt x 297.15996pt.
 [4 <./includes/corr_matrix.png>]
 <includes/feature_process.png, id=166, 754.82pt x 221.82875pt>
 File: includes/feature_process.png Graphic file (type png)
 <use includes/feature_process.png>
-Package pdftex.def Info: includes/feature_process.png  used on input line 517.
+Package pdftex.def Info: includes/feature_process.png  used on input line 518.
 (pdftex.def)             Requested size: 455.2451pt x 133.78876pt.
 [5 <./includes/pps.png (PNG copy)> <./includes/feature_process.png>] [6] [7{c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}]
 <includes/RF_hyper.png, id=194, 435.6275pt x 386.44376pt>
 File: includes/RF_hyper.png Graphic file (type png)
 <use includes/RF_hyper.png>
-Package pdftex.def Info: includes/RF_hyper.png  used on input line 704.
+Package pdftex.def Info: includes/RF_hyper.png  used on input line 705.
 (pdftex.def)             Requested size: 227.61772pt x 201.91896pt.
 [8]
 <includes/RF_importance.png, id=199, 732.7375pt x 618.31pt>
 File: includes/RF_importance.png Graphic file (type png)
 <use includes/RF_importance.png>
-Package pdftex.def Info: includes/RF_importance.png  used on input line 712.
+Package pdftex.def Info: includes/RF_importance.png  used on input line 713.
 (pdftex.def)             Requested size: 455.25409pt x 384.1596pt.
 [9 <./includes/RF_hyper.png> <./includes/RF_importance.png>] [10]
 <includes/GB_hyper.png, id=212, 446.66875pt x 410.53375pt>
 File: includes/GB_hyper.png Graphic file (type png)
 <use includes/GB_hyper.png>
-Package pdftex.def Info: includes/GB_hyper.png  used on input line 804.
+Package pdftex.def Info: includes/GB_hyper.png  used on input line 805.
 (pdftex.def)             Requested size: 227.62766pt x 209.21283pt.
 [11]
 <includes/GB_importance.png, id=217, 775.89874pt x 644.4075pt>
 File: includes/GB_importance.png Graphic file (type png)
 <use includes/GB_importance.png>
-Package pdftex.def Info: includes/GB_importance.png  used on input line 815.
+Package pdftex.def Info: includes/GB_importance.png  used on input line 816.
 (pdftex.def)             Requested size: 455.25453pt x 378.10274pt.
 [12 <./includes/GB_hyper.png>] [13 <./includes/GB_importance.png>]
-LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 893.
+LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 894.
 (c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [14]
 <includes/aprox_smooth.png, id=234, 582.175pt x 260.975pt>
 File: includes/aprox_smooth.png Graphic file (type png)
 <use includes/aprox_smooth.png>
-Package pdftex.def Info: includes/aprox_smooth.png  used on input line 916.
+Package pdftex.def Info: includes/aprox_smooth.png  used on input line 917.
 (pdftex.def)             Requested size: 364.20493pt x 163.26428pt.
 [15 <./includes/aprox_smooth.png>] [16] [17]
 \blx@maxsegment@1=\count450
 \blx@sectionciteorder@1=\count451
-Package biblatex Info: Reference section=1 on input line 959.
-Package biblatex Info: Setting label 'refsection:1' on input line 959.
-Package biblatex Info: Reference section=0 on input line 964.
+Package biblatex Info: Reference section=1 on input line 960.
+Package biblatex Info: Setting label 'refsection:1' on input line 960.
+Package biblatex Info: Reference section=0 on input line 965.
 (./paper.aux)
  ***********
 LaTeX2e <2023-06-01> patch level 1
@@ -1100,7 +1100,7 @@ Here is how much of TeX's memory you used:
 pdfTeX warning (dest): name{Hfootnote.1} has been referenced but does not exist, replaced by a fixed one
 
 <c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr6.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr9.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/lbergmann/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on paper.pdf (20 pages, 750384 bytes).
+Output written on paper.pdf (20 pages, 750428 bytes).
 PDF statistics:
  345 PDF objects out of 1000 (max. 8388607)
  268 compressed objects within 3 object streams
