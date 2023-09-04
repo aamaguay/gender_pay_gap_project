@@ -303,6 +303,7 @@ set.seed(123)
 trainindex_filter <- createDataPartition(y = ds$realrinc, p = 0.7, list = FALSE) # Split the data into training (70%) and remaining (30%)
 train <- ds[trainindex_filter, ]
 validation<- ds[-trainindex_filter, ]
+test <- read.csv("data/compatibility_kids_test.csv")
 
 # valid_test_index_filter <- createDataPartition(y = remaining_filter$realrinc, p = 0.5, list = FALSE) # Split the remaining data into validation (50%) and test (50%)
 # validation_filter <- remaining_filter[valid_test_index_filter, ]
@@ -357,7 +358,7 @@ mod_full <- train(formula,
                   method = "lm",  
                   trControl = trainControl(method = "cv", number = 3))
 summary(mod_full)
-rmse <- caret::RMSE(pred = predict(mod_full, validation), obs = validation$realrinc)
+rmse <- caret::RMSE(pred = predict(mod_full, test), obs = test$realrinc)
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25506.05
 
 
