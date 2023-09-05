@@ -1,8 +1,12 @@
 # set wd
-setwd("/home/user/Downloads/info_tud/statistical_learning_UDE/gender_pay_gap_project")
+tryCatch({
+  setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/gender_pay_gap_project_1")
+}, error = function(err1) {
+  # If an error occurs, handle it by setting the working directory to the second path
+  setwd("/home/user/Desktop/files_desktop/gender_pay_gap_project")
+})
 # import functions file
 source('code/utils_functions.R')
-setwd("C:/Users/lbergmann/OneDrive - RWI–Leibniz-Institut für Wirtschaftsforschung e.V/Dokumente/Promotion/StatisticalLearning/gender_pay_gap_project_1")
 
 # packages
 library(dplyr)
@@ -28,7 +32,6 @@ library(stargazer)
 # remotes::install_github("mlr-org/mlr3extralearners@*release")
 library(mlr3extralearners)
 
-
 # import ds
 test <- read.csv('data/gss_wages_test.csv')
 
@@ -45,7 +48,6 @@ test$occrecode <- as.factor(test$occrecode)
 # filtered dataset, not using obs, with missing value for outcome
 ds_filter  <- test[!is.na(test$realrinc),] #filtered dataset
 summary(ds_filter)
-
 
 ds_filter2 <- ds_filter %>% filter(occ10 != 9997)
 cat("the dataset with filter#2 has ", nrow(ds_filter2), 'rows \n')
@@ -67,7 +69,7 @@ for (i.ds in 1:6) {
 }
 colnames(full.datasets) <- colnames(ds_with_filter_col)
 
-# due to the results of each imputation dataset are not similar (randomness), we need to join this datatset
+# due to the results of each imputation dataset are not similar (randomness), we need to join these datatsets
 # I apply a mean estimation for the numeric values, and majority vote for factor values
 ds.after.imp.method <- matrix(NA, ncol = ncol(ds_with_filter_col) , nrow = nrow(ds_with_filter_col))
 colnames(ds.after.imp.method) <- colnames(ds_with_filter_col)
@@ -78,7 +80,7 @@ for (i.name in colnames(ds_with_filter_col)) {
     ds.mean.feature <- matrix(NA, ncol = 6, nrow = nrow(ds_with_filter_col))
     for(i.idx in 1:6) ds.mean.feature[,i.idx] <- full.datasets[,,i.idx][,i.name]
     ds.mean.feature <- ds.mean.feature %>% as.data.frame() 
-    ds.mean.feature <- (as.data.frame(lapply(ds.mean.feature, function(x) as.numeric(x)))) #here suddenly NAs are included
+    ds.mean.feature <- sapply(ds.mean.feature, function(x) as.numeric(as.character(x))) #here suddenly NAs are included
     ds.mean.feature <- round(rowMeans(ds.mean.feature, na.rm = TRUE))
     ds.after.imp.method[,i.name] <- ds.mean.feature
   }
@@ -93,7 +95,6 @@ for (i.name in colnames(ds_with_filter_col)) {
   }
 }
 
-
 sum(is.na(ds.after.imp.method))
 # fix data type
 ds.after.imp.method <- ds.after.imp.method %>% as.data.frame()
@@ -102,10 +103,9 @@ ds.after.imp.method$realrinc <- ds_with_filter_col$realrinc
 ds.after.imp.method$occrecode <- ds_with_filter_col$occrecode
 ds.after.imp.method$wrkstat <- ds_with_filter_col$wrkstat
 ds.after.imp.method$gender <- ds_with_filter_col$gender
-ds.after.imp.method$age <- as.numeric(ds.after.imp.method$age)
-ds.after.imp.method$childs <- as.numeric(ds.after.imp.method$childs)
-ds.after.imp.method$prestg10 <- as.numeric(ds.after.imp.method$prestg10)
-
+ds.after.imp.method$age <- as.numeric(as.character(ds.after.imp.method$age))
+ds.after.imp.method$childs <- as.numeric(as.character(ds.after.imp.method$childs))
+ds.after.imp.method$prestg10 <- as.numeric(as.character(ds.after.imp.method$prestg10))
 
 # comparison between datasets - before and after imputation
 summary(ds_filter2)
@@ -144,7 +144,6 @@ ds.w.imputed.dummies$inter_prestg_childs <- ds.w.imputed.dummies$prestg10 * ds.w
 
 cat("the dataset has ", nrow(ds.w.imputed.dummies), 'rows \n')
 summary(ds.w.imputed.dummies)
-
 
 # create quantiles to show interaction plot
 ds.w.imputed.dummies$age_qtil <- cut(ds.w.imputed.dummies$age, breaks = c(18, 30, 50, max(ds.w.imputed.dummies$age)),
@@ -189,7 +188,7 @@ occrecode.labels <- occrecode.labels[occrecode.labels != "armed_forces"]
 wrkstat.labels <- full.col.names[match("full_time", full.col.names):match("unemployed_laid_off", full.col.names)]
 wrkstat.labels <- wrkstat.labels[wrkstat.labels != "other_wrkstat"]
 
-educcat.labels <- full.col.names[match("bachelor", full.col.names):match("lessthan_high_school", full.col.names)]
+educcat.labels <- full.col.names[match("bachelor", full.col.names):match("less_than_high_school", full.col.names)]
 educcat.labels <- educcat.labels[educcat.labels != "junior_college"]
 
 maritalcat.labels <- full.col.names[match("divorced", full.col.names):match("widowed", full.col.names)]
@@ -207,7 +206,7 @@ prestg.intervals.labels <- prestg.intervals.labels[prestg.intervals.labels != "p
 # create the combination of features
 col_comb_features <- c(paste("occ_", occrecode.labels, sep = ""),
                        paste("wrk_", wrkstat.labels, sep = ""),
-                       #paste("edu_", educcat.labels, sep = ""),
+                       paste("edu_", educcat.labels, sep = ""),
                        paste("marital_", maritalcat.labels, sep = ""),
                        paste("age_", age.intervals.labels, sep = ""),
                        paste("childs_", childs.intervals.labels, sep = ""),
@@ -239,7 +238,7 @@ mx.result.tibble <- do.call(cbind,
                                    FUN = function(i) estimate.vector(i, ls_ds_interaction, ds.w.imputed.dummies ) ) )
 colnames(mx.result.tibble) <- unlist(ls_ds_interaction_pt)
 mx.result.tibble <- as_tibble(mx.result.tibble)
-mx.result.tibble <- mx.result.tibble[,(colSums(mx.result.tibble) >0)] 
+# mx.result.tibble <- mx.result.tibble[,(colSums(mx.result.tibble) >0)] 
 cat("filtered total features with column sum greater than 0: ", ncol(mx.result.tibble ), "\n" )
 
 full_data_final <- cbind(ds.w.imputed.dummies,
@@ -251,7 +250,6 @@ cor.filter <- select_if(test, is.numeric)
 matrix <- cor(cor.filter, method = "spearman")
 highCorFeatures <- findCorrelation(matrix, cutoff = 0.9, exact = TRUE)
 test <- test[,-highCorFeatures]
-
 
 # save datasets
 write.csv(full_data_final, file = "data/test_final.csv")
