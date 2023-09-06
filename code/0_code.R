@@ -360,6 +360,9 @@ mod_full <- train(formula,
 summary(mod_full)
 rmse <- caret::RMSE(pred = predict(mod_full, test), obs = test$realrinc)
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25506.05
+# Calculate the average RMSE
+cv_results <- mod_full$results$RMSE
+avg_rmse <- mean(cv_results)
 
 
 #exclude any interactions
@@ -375,6 +378,7 @@ mod_wo_interactions <-train(realrinc ~ female + age + prestg10 + childs + armed_
 summary(mod_wo_interactions)
 rmse <- caret::RMSE(pred = predict(mod_wo_interactions, validation), obs = validation$realrinc)
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25588.5
+
 
 #log(income) as outcome variable
 set.seed(123)

@@ -188,7 +188,7 @@ occrecode.labels <- occrecode.labels[occrecode.labels != "armed_forces"]
 wrkstat.labels <- full.col.names[match("full_time", full.col.names):match("unemployed_laid_off", full.col.names)]
 wrkstat.labels <- wrkstat.labels[wrkstat.labels != "other_wrkstat"]
 
-educcat.labels <- full.col.names[match("bachelor", full.col.names):match("less_than_high_school", full.col.names)]
+educcat.labels <- full.col.names[match("bachelor", full.col.names):match("lessthan_high_school", full.col.names)]
 educcat.labels <- educcat.labels[educcat.labels != "junior_college"]
 
 maritalcat.labels <- full.col.names[match("divorced", full.col.names):match("widowed", full.col.names)]
@@ -317,6 +317,19 @@ x_cols_dummys <- c( colnames(ds)[match("age", colnames(ds)):match("childs", coln
                     "inter_age_prestg","inter_age_childs", "inter_prestg_childs", x_cols_inter)
 x_cols_dummys <- x_cols_dummys[!x_cols_dummys %in% c("armed_forces", "other_wrkstat", "junior_college", "separated")]
 
+#OLS
+formula <- as.formula(paste("realrinc ~", paste(x_cols_dummys, collapse = " + ")))
+set.seed(123)
+mod_full <- train(formula,
+                  data = train, 
+                  method = "lm",  
+                  trControl = trainControl(method = "cv", number = 3))
+summary(mod_full)
+rmse <- caret::RMSE(pred = predict(mod_full, test), obs = test$realrinc)
+cat("Root Mean Squared Error (RMSE):", rmse, "\n") #22666.87
+cv_results <- mod_full$results$RMSE
+avg_rmse <- mean(cv_results)
+
 #log(income) as outcome variable
 set.seed(123)
 formula2 <- as.formula(paste("log_realrinc ~", paste(x_cols_dummys, collapse = " + ")))
@@ -329,4 +342,30 @@ pred_log_inc <- exp(predict(mod_loginc, newdata = test))
 rmse <- sqrt(mean((test$realrinc - pred_log_inc)^2))
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #22874.2
 #using log income increases RMSE
+cv_results <- mod_full$results$RMSE
+avg_rmse <- mean(cv_results)
+cat("Root Mean Squared Error (RMSE):", avg_rmse, "\n") #24736,92
 
+
+#Lasso
+formula <- as.formula(paste("log_realrinc ~", paste(x_cols_dummys, collapse = " + ")))
+set.seed(123)
+lasso <- train(formula, data = train, 
+               method = "glmnet", trControl = trainControl(method = "cv", number = 3), 
+               tuneGrid = expand.grid(alpha = 1, lambda = seq(0,1,0.001)))
+caret::RMSE(pred = exp(predict(lasso, test)), obs = test$realrinc) #22877.65
+
+#Ridge
+set.seed(123)
+ridge <- train(formula, data = train,
+               method = "glmnet", trControl = trainControl(method = "cv", number = 3),
+               tuneGrid = expand.grid(alpha = 0, lambda = seq(0,1,0.001)))  #23084.74
+caret::RMSE(pred = exp(predict(ridge, test)), obs = test$realrinc)
+
+#Elastic Net
+set.seed(123)
+elasticnet <- train(formula, data = train,
+                    method = "glmnet", trControl = trainControl(method = "cv", number = 3),
+                    tuneGrid = expand.grid(alpha = seq(from=0, to=1, by = 0.1),
+                                           lambda = seq(from=0, to=0.15, by = 0.001)))
+caret::RMSE(pred = exp(predict(elasticnet, test)), obs = test$realrinc) #22877.76
