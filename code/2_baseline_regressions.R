@@ -30,7 +30,7 @@ validation<- ds[-trainindex_filter, ]
 # validation_filter <- remaining_filter[valid_test_index_filter, ]
 # test_filter <- remaining_filter[-valid_test_index_filter, ]
 
-cat("training dim: ", nrow(train), ", test dim: ", nrow(remaining), "\n")
+cat("training dim: ", nrow(train), ", test dim: ", nrow(validation), "\n")
 
 full.col.names <- colnames(ds)
 occrecode.labels <- full.col.names[match("armed_forces", full.col.names):match("transportation", full.col.names)]
@@ -73,33 +73,37 @@ x_cols_dummys <- x_cols_dummys[!x_cols_dummys %in% c("armed_forces", "other_wrks
 
 #OLS regressions
 formula <- as.formula(paste("realrinc ~", paste(x_cols_dummys, collapse = " + ")))
+set.seed(123)
 mod_full <- train(formula,
                   data = train, 
                   method = "lm",  
-                  trControl = trainControl(method = "cv"))
+                  trControl = trainControl(method = "cv", number = 3))
 summary(mod_full)
 rmse <- caret::RMSE(pred = predict(mod_full, validation), obs = validation$realrinc)
 cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25506.05
 
 
 #exclude any interactions
+set.seed(123)
 mod_wo_interactions <-train(realrinc ~ female + age + prestg10 + childs + armed_forces + business_finance + construction_extraction + farming_fishing_and_forestry + 
                             installation_maintenance_and_repair + office_and_administrative_support + production + professional + sales + service + 
                              + full_time + housekeeper + part_time + retired + school + temporarily_not_working + unemployed_laid_off + bachelor + 
                             graduate + highschool + juniorcollege +  + divorced + married + nevermarried + separated,
                             data = train, 
                             method = "lm",  
-                            trControl = trainControl(method = "cv"))
+                            trControl = trainControl(method = "cv", number = 3))
+
 summary(mod_wo_interactions)
 rmse <- caret::RMSE(pred = predict(mod_wo_interactions, validation), obs = validation$realrinc)
-cat("Root Mean Squared Error (RMSE):", rmse, "\n") #24611.53
+cat("Root Mean Squared Error (RMSE):", rmse, "\n") #25588.5
 
 #log(income) as outcome variable
+set.seed(123)
 formula2 <- as.formula(paste("log_realrinc ~", paste(x_cols_dummys, collapse = " + ")))
 mod_loginc <- train(formula2,
                     data = train, 
                     method = "lm",  
-                    trControl = trainControl(method = "cv"))
+                    trControl = trainControl(method = "cv", number = 3))
 summary(mod_loginc)
 pred_log_inc <- exp(predict(mod_loginc, newdata = validation))
 rmse <- sqrt(mean((validation$realrinc - pred_log_inc)^2))

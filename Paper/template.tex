@@ -37,7 +37,7 @@ $if(mathfont)$
 $endif$
 \fi
 % use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+%\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 % use microtype if available
 \IfFileExists{microtype.sty}{%
 \usepackage{microtype}
@@ -66,7 +66,7 @@ $endif$
 }
 
 %% citation setup
-\usepackage{csquotes}
+%\usepackage{csquotes}
 
 $if(natbib)$
 \usepackage{natbib}
@@ -299,45 +299,33 @@ $endif$
 
   \columnbreak
 
-  Ape Monkey
+ Lea Bergmann
 
-  123456
+  3104233
 
-  Ape@Monkey.biz
+lea.bergmann@rwi-essen.de
+lea.bergmann.1j@stud.uni-due.de
 
-  M.Sc. Economics
+Ph.D. Economics
 
-  \nth{5}
+  \nth{1}
 
-  Summer Term 2020
-
-  \columnbreak
-
-  John Doe
-
-  234567
-
-  john.doe@web.de
-
-  M.Sc. Economics
-
-  \nth{4}
-
-  Summer Term 2020
+  Summer Term 2028
 
   \columnbreak
 
-  Darth Vader
+  Alex Amaguaya
 
-  543556
+  242833
 
-  vader@emperialenterprises.com
+  alex.amaguaya@tu-dortmund.de
 
-  M.Sc. Economics
+  M.Sc. Econometrics
 
-  \nth{3}
+  \nth{2}
 
-  Summer Term 2020
+  Summer Term 2023
+
 
   \end{multicols}
 
@@ -371,14 +359,8 @@ $if(lof)$
 \addcontentsline{toc}{section}{List of Figures}
 $endif$
 
-$if(lot)$
-%\newpage
-\listoftables
-\addcontentsline{toc}{section}{List of Tables}
-$endif$
 
-\section*{List of Abbreviations}
-\addcontentsline{toc}{section}{List of Abbreviations}
+
 
 \begin{adjustwidth}{1.5em}{0pt}
 
